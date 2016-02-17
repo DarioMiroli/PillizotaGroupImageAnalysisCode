@@ -129,9 +129,9 @@ def SavePlot(filename):
     plt.savefig(filename + ".png")
 
 def FolderCompare(FolderName):
-    filenames = os.listdir(FolderName+"/")
+    filenames = os.listdir(FolderName)
     Images = []
     for file in filenames:
-        Images.append(Open(FolderName+"/"+file))
+        Images.append(Open(os.path.join(FolderName,file)))
     Compare(Images)
     Show()
