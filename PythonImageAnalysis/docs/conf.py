@@ -15,17 +15,13 @@
 import sys
 import os
 import sphinx_rtd_theme
-from mock import Mock as MagicMock
+import mock
 
-class Mock(MagicMock):
-    @classmethod
-    def __getattr__(cls,name):
-        return Mock()
-MOCK_MODULES = ['matplotlib.pyplot','numpy','skimage.filters','skiamge.morphology','skimage','scipy','tiffile','mpl_toolkits.axes_grid1','matplotlib.colors','matplotlib.ticker']
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+MOCK_MODULES = ['matplotlib', 'matplotlib.pyplot','numpy','skimage','skimage.filters','skimage.morphology','skimage.feature','scipy','tiffile','mpl_toolkits.axes_grid1','matplotlib.colors','matplotlib.ticker']
+for mod_name in MOCK_MODULES:
+    sys.modules[mod_name] = mock.Mock()
 
-html_theme = "sphinx_rtd_theme"
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
 
 sys.path.insert(0, os.path.join(os.path.abspath(".."),"Tools"))
 # If extensions (or modules to document with autodoc) are in another directory,
