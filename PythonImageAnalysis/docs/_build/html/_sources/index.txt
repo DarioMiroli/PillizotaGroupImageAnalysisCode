@@ -11,5 +11,4 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-.. automodule:: ImageAnalysisTools
-    :members:
+   ToolsDoc
