@@ -17,7 +17,7 @@ import os
 import sphinx_rtd_theme
 import mock
 
-MOCK_MODULES = ['matplotlib', 'matplotlib.pyplot','numpy','skimage','skimage.filters','skimage.morphology','skimage.feature','scipy','tifffile','mpl_toolkits.axes_grid1','matplotlib.colors','matplotlib.ticker']
+MOCK_MODULES = ['matplotlib', 'matplotlib.pyplot','numpy','skimage','skimage.filters','skimage.morphology','skimage.feature','scipy','tifffile','mpl_toolkits','mpl_toolkits.axes_grid1','matplotlib.colors','matplotlib.ticker']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = mock.Mock()
 
