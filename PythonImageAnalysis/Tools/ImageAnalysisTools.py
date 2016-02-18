@@ -1,4 +1,4 @@
-'''Functions used in Image analysis process'''
+"""Functions used in Image analysis process"""
 import matplotlib.pyplot as plt
 import numpy as np
 from skimage.filters import *
@@ -16,6 +16,7 @@ from matplotlib.ticker import MultipleLocator
 import os
 
 def Setup(InputFolder, OutputFolder):
+    '''Setup Function'''
     try:
         os.stat(OutputFolder)
     except:
