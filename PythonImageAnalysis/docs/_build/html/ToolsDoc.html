@@ -128,11 +128,124 @@
             
   <div class="section" id="module-ImageAnalysisTools">
 <span id="image-analysis-tools"></span><h1>Image Analysis Tools<a class="headerlink" href="#module-ImageAnalysisTools" title="Permalink to this headline">¶</a></h1>
-<p>Functions used in Image analysis process</p>
+<p>Mix of functions used for image processing and data extraction.</p>
+<dl class="function">
+<dt id="ImageAnalysisTools.Blurr">
+<code class="descclassname">ImageAnalysisTools.</code><code class="descname">Blurr</code><span class="sig-paren">(</span><em>Image</em>, <em>sigma</em><span class="sig-paren">)</span><a class="headerlink" href="#ImageAnalysisTools.Blurr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perofrms a gaussian blurr on Image with standard deviation sigma.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ImageAnalysisTools.Compare">
+<code class="descclassname">ImageAnalysisTools.</code><code class="descname">Compare</code><span class="sig-paren">(</span><em>ImageArray</em>, <em>ColorBarArray=None</em>, <em>TitleArray=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ImageAnalysisTools.Compare" title="Permalink to this definition">¶</a></dt>
+<dd><p>Places images side by side for comparsion.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ImageAnalysisTools.ConstructOverlay">
+<code class="descclassname">ImageAnalysisTools.</code><code class="descname">ConstructOverlay</code><span class="sig-paren">(</span><em>Image1</em>, <em>Image2</em><span class="sig-paren">)</span><a class="headerlink" href="#ImageAnalysisTools.ConstructOverlay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes 2 images and overlays them for disply.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ImageAnalysisTools.Dilate">
+<code class="descclassname">ImageAnalysisTools.</code><code class="descname">Dilate</code><span class="sig-paren">(</span><em>Image</em>, <em>numberoftimes</em><span class="sig-paren">)</span><a class="headerlink" href="#ImageAnalysisTools.Dilate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs binary dilation on Image a required number of times.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ImageAnalysisTools.DistanceTransform">
+<code class="descclassname">ImageAnalysisTools.</code><code class="descname">DistanceTransform</code><span class="sig-paren">(</span><em>Image</em><span class="sig-paren">)</span><a class="headerlink" href="#ImageAnalysisTools.DistanceTransform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes distance transform of image.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ImageAnalysisTools.Erode">
+<code class="descclassname">ImageAnalysisTools.</code><code class="descname">Erode</code><span class="sig-paren">(</span><em>Image</em>, <em>numberoftimes</em><span class="sig-paren">)</span><a class="headerlink" href="#ImageAnalysisTools.Erode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs binary erosion of image a required number of times.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ImageAnalysisTools.Fill">
+<code class="descclassname">ImageAnalysisTools.</code><code class="descname">Fill</code><span class="sig-paren">(</span><em>Image</em><span class="sig-paren">)</span><a class="headerlink" href="#ImageAnalysisTools.Fill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fills in whole in connected reigons in Image.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ImageAnalysisTools.FolderCompare">
+<code class="descclassname">ImageAnalysisTools.</code><code class="descname">FolderCompare</code><span class="sig-paren">(</span><em>FolderName</em><span class="sig-paren">)</span><a class="headerlink" href="#ImageAnalysisTools.FolderCompare" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares all images in a folder on screen.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ImageAnalysisTools.GlobalThreshold">
+<code class="descclassname">ImageAnalysisTools.</code><code class="descname">GlobalThreshold</code><span class="sig-paren">(</span><em>Image</em><span class="sig-paren">)</span><a class="headerlink" href="#ImageAnalysisTools.GlobalThreshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple threshold of image using single threshold value over whole image.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ImageAnalysisTools.Label">
+<code class="descclassname">ImageAnalysisTools.</code><code class="descname">Label</code><span class="sig-paren">(</span><em>Image</em><span class="sig-paren">)</span><a class="headerlink" href="#ImageAnalysisTools.Label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Labels each connected reigon in Image with a different number</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ImageAnalysisTools.Open">
+<code class="descclassname">ImageAnalysisTools.</code><code class="descname">Open</code><span class="sig-paren">(</span><em>pathname</em><span class="sig-paren">)</span><a class="headerlink" href="#ImageAnalysisTools.Open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns numpy array of image at pathname.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ImageAnalysisTools.Save">
+<code class="descclassname">ImageAnalysisTools.</code><code class="descname">Save</code><span class="sig-paren">(</span><em>Image</em>, <em>pathname</em><span class="sig-paren">)</span><a class="headerlink" href="#ImageAnalysisTools.Save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves image to pathname as png.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ImageAnalysisTools.SavePlot">
+<code class="descclassname">ImageAnalysisTools.</code><code class="descname">SavePlot</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#ImageAnalysisTools.SavePlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves plot to pathname as png.</p>
+</dd></dl>
+
 <dl class="function">
 <dt id="ImageAnalysisTools.Setup">
 <code class="descclassname">ImageAnalysisTools.</code><code class="descname">Setup</code><span class="sig-paren">(</span><em>InputFolder</em>, <em>OutputFolder</em><span class="sig-paren">)</span><a class="headerlink" href="#ImageAnalysisTools.Setup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Setup Function</p>
+<dd><p>Creates output folder if it doesnt exist and get input file named from input
+file.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ImageAnalysisTools.Show">
+<code class="descclassname">ImageAnalysisTools.</code><code class="descname">Show</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ImageAnalysisTools.Show" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shows image at run time.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ImageAnalysisTools.SiveArea">
+<code class="descclassname">ImageAnalysisTools.</code><code class="descname">SiveArea</code><span class="sig-paren">(</span><em>Image</em>, <em>smallest=0</em>, <em>largest=1000000000.0</em><span class="sig-paren">)</span><a class="headerlink" href="#ImageAnalysisTools.SiveArea" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes connected reigons smller than smallest and larger than largest in
+Image.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ImageAnalysisTools.Skeletonize">
+<code class="descclassname">ImageAnalysisTools.</code><code class="descname">Skeletonize</code><span class="sig-paren">(</span><em>Image</em><span class="sig-paren">)</span><a class="headerlink" href="#ImageAnalysisTools.Skeletonize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduces Image to a skeleton.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ImageAnalysisTools.Threshold">
+<code class="descclassname">ImageAnalysisTools.</code><code class="descname">Threshold</code><span class="sig-paren">(</span><em>Image</em>, <em>blockSize</em><span class="sig-paren">)</span><a class="headerlink" href="#ImageAnalysisTools.Threshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs an adaptive threshold on Image. Threshold value is obtained by
+averaging pixels in each small reigon the size of which is given by
+blocksize.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ImageAnalysisTools.WaterShed">
+<code class="descclassname">ImageAnalysisTools.</code><code class="descname">WaterShed</code><span class="sig-paren">(</span><em>Image</em><span class="sig-paren">)</span><a class="headerlink" href="#ImageAnalysisTools.WaterShed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs water shed transform on Image. Useful for segmentation of connected
+reigons.</p>
 </dd></dl>
 
 </div>
