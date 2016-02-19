@@ -1,2 +1,2 @@
 # PilizotaGroupImageAnalysis
-Various routines for the extracting of infromation from microscopy iamges. 
+Various routines for the extracting of information from microscopy images. 
