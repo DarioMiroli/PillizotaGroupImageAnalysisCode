@@ -1,4 +1,8 @@
 def Run(Input, Output,Functions,ParameterArray):
+    '''
+    Takes a list of functions and a list of parameter lists. Runs through each
+    one in turn for each file in Input and saves results to output.
+    '''
     filenames = IT.Setup(Input, Output)
     for file in filenames:
         Images = []
@@ -15,12 +19,15 @@ def Run(Input, Output,Functions,ParameterArray):
                 Images.append(Image)
 
 def addToolsToPath():
+    '''Adds the pyzota_image_toolbox to path so it can be imported as normal '''
     currentPath=sys.path[0]
     back1 = os.path.dirname(currentPath)
     packagePath =  os.path.dirname(back1)
     sys.path.insert(0, packagePath)
 
 if __name__ == "__main__":
+    """Example which loads images from a file and runs through a few standard
+    routines saving results to ExampleOutput."""
     import sys, os
     addToolsToPath()
     from pyzota_image_toolbox import imageTools as IT

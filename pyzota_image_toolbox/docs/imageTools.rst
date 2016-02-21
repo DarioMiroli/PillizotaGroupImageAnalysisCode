@@ -1,5 +1,5 @@
 Image Analysis Tools
 *********************
 
-.. automodule:: ImageAnalysisTools
+.. automodule:: imageTools
     :members:
