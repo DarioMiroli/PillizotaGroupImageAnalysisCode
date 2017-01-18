@@ -1,0 +1,323 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Image Analysis Tools &mdash; Project Oracle 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Project Oracle 1.0 documentation" href="index.html"/>
+        <link rel="next" title="Examples" href="Examples.html"/>
+        <link rel="prev" title="Welcome to Project Oracle’s documentation!" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Project Oracle
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">Image Analysis Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Examples.html">Examples</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Project Oracle</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Image Analysis Tools</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/imageTools.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-imageTools">
+<span id="image-analysis-tools"></span><h1>Image Analysis Tools<a class="headerlink" href="#module-imageTools" title="Permalink to this headline">¶</a></h1>
+<p>Mix of functions used for image processing and data extraction.</p>
+<dl class="function">
+<dt id="imageTools.Blurr">
+<code class="descclassname">imageTools.</code><code class="descname">Blurr</code><span class="sig-paren">(</span><em>Image</em>, <em>sigma</em><span class="sig-paren">)</span><a class="headerlink" href="#imageTools.Blurr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perofrms a gaussian blurr on Image with standard deviation sigma.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="imageTools.Compare">
+<code class="descclassname">imageTools.</code><code class="descname">Compare</code><span class="sig-paren">(</span><em>ImageArray</em>, <em>ColorBarArray=None</em>, <em>TitleArray=None</em><span class="sig-paren">)</span><a class="headerlink" href="#imageTools.Compare" title="Permalink to this definition">¶</a></dt>
+<dd><p>Places images side by side for comparsion.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="imageTools.ConstructOverlay">
+<code class="descclassname">imageTools.</code><code class="descname">ConstructOverlay</code><span class="sig-paren">(</span><em>Image1</em>, <em>Image2</em><span class="sig-paren">)</span><a class="headerlink" href="#imageTools.ConstructOverlay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes 2 images and overlays them for disply.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="imageTools.Dilate">
+<code class="descclassname">imageTools.</code><code class="descname">Dilate</code><span class="sig-paren">(</span><em>Image</em>, <em>numberoftimes</em><span class="sig-paren">)</span><a class="headerlink" href="#imageTools.Dilate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs binary dilation on Image a required number of times.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="imageTools.DistanceTransform">
+<code class="descclassname">imageTools.</code><code class="descname">DistanceTransform</code><span class="sig-paren">(</span><em>Image</em><span class="sig-paren">)</span><a class="headerlink" href="#imageTools.DistanceTransform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes distance transform of image.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="imageTools.Erode">
+<code class="descclassname">imageTools.</code><code class="descname">Erode</code><span class="sig-paren">(</span><em>Image</em>, <em>numberoftimes</em><span class="sig-paren">)</span><a class="headerlink" href="#imageTools.Erode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs binary erosion of image a required number of times.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="imageTools.Fill">
+<code class="descclassname">imageTools.</code><code class="descname">Fill</code><span class="sig-paren">(</span><em>Image</em><span class="sig-paren">)</span><a class="headerlink" href="#imageTools.Fill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fills in whole in connected reigons in Image.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="imageTools.FolderCompare">
+<code class="descclassname">imageTools.</code><code class="descname">FolderCompare</code><span class="sig-paren">(</span><em>FolderName</em><span class="sig-paren">)</span><a class="headerlink" href="#imageTools.FolderCompare" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares all images in a folder on screen.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="imageTools.GlobalThreshold">
+<code class="descclassname">imageTools.</code><code class="descname">GlobalThreshold</code><span class="sig-paren">(</span><em>Image</em><span class="sig-paren">)</span><a class="headerlink" href="#imageTools.GlobalThreshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple threshold of image using single threshold value over whole image.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="imageTools.Label">
+<code class="descclassname">imageTools.</code><code class="descname">Label</code><span class="sig-paren">(</span><em>Image</em><span class="sig-paren">)</span><a class="headerlink" href="#imageTools.Label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Labels each connected reigon in Image with a different number</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="imageTools.Open">
+<code class="descclassname">imageTools.</code><code class="descname">Open</code><span class="sig-paren">(</span><em>pathname</em><span class="sig-paren">)</span><a class="headerlink" href="#imageTools.Open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns numpy array of image at pathname.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="imageTools.Save">
+<code class="descclassname">imageTools.</code><code class="descname">Save</code><span class="sig-paren">(</span><em>Image</em>, <em>pathname</em><span class="sig-paren">)</span><a class="headerlink" href="#imageTools.Save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves image to pathname as png.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="imageTools.SavePlot">
+<code class="descclassname">imageTools.</code><code class="descname">SavePlot</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#imageTools.SavePlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves plot to pathname as png.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="imageTools.Setup">
+<code class="descclassname">imageTools.</code><code class="descname">Setup</code><span class="sig-paren">(</span><em>InputFolder</em>, <em>OutputFolder</em><span class="sig-paren">)</span><a class="headerlink" href="#imageTools.Setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates output folder if it doesnt exist and get input file named from input
+file.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="imageTools.Show">
+<code class="descclassname">imageTools.</code><code class="descname">Show</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#imageTools.Show" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shows image at run time.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="imageTools.SiveArea">
+<code class="descclassname">imageTools.</code><code class="descname">SiveArea</code><span class="sig-paren">(</span><em>Image</em>, <em>smallest=0</em>, <em>largest=1000000000.0</em><span class="sig-paren">)</span><a class="headerlink" href="#imageTools.SiveArea" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes connected reigons smller than smallest and larger than largest in
+Image.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="imageTools.Skeletonize">
+<code class="descclassname">imageTools.</code><code class="descname">Skeletonize</code><span class="sig-paren">(</span><em>Image</em><span class="sig-paren">)</span><a class="headerlink" href="#imageTools.Skeletonize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduces Image to a skeleton.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="imageTools.Threshold">
+<code class="descclassname">imageTools.</code><code class="descname">Threshold</code><span class="sig-paren">(</span><em>Image</em>, <em>blockSize</em><span class="sig-paren">)</span><a class="headerlink" href="#imageTools.Threshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs an adaptive threshold on Image. Threshold value is obtained by
+averaging pixels in each small reigon the size of which is given by
+blocksize.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="imageTools.WaterShed">
+<code class="descclassname">imageTools.</code><code class="descname">WaterShed</code><span class="sig-paren">(</span><em>Image</em><span class="sig-paren">)</span><a class="headerlink" href="#imageTools.WaterShed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs water shed transform on Image. Useful for segmentation of connected
+reigons.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="Examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to Project Oracle’s documentation!" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Dario Miroli.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

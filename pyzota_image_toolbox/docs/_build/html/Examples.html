@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Welcome to Project Oracle’s documentation! &mdash; Project Oracle 1.0 documentation</title>
+  <title>Examples &mdash; Project Oracle 1.0 documentation</title>
   
 
   
@@ -30,8 +30,8 @@
   
 
   
-    <link rel="top" title="Project Oracle 1.0 documentation" href="#"/>
-        <link rel="next" title="Image Analysis Tools" href="imageTools.html"/> 
+    <link rel="top" title="Project Oracle 1.0 documentation" href="index.html"/>
+        <link rel="prev" title="Image Analysis Tools" href="imageTools.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -49,7 +49,7 @@
           
 
           
-            <a href="#" class="icon icon-home"> Project Oracle
+            <a href="index.html" class="icon icon-home"> Project Oracle
           
 
           
@@ -80,9 +80,13 @@
           
             
             
-                <ul>
+                <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="imageTools.html">Image Analysis Tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-Example1">Example1.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Test">Test.py</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -96,7 +100,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="#">Project Oracle</a>
+        <a href="index.html">Project Oracle</a>
       </nav>
 
 
@@ -111,13 +115,13 @@
 
 <div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="#">Docs</a> &raquo;</li>
+    <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>Welcome to Project Oracle&#8217;s documentation!</li>
+    <li>Examples</li>
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="_sources/index.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/Examples.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -127,18 +131,30 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="welcome-to-project-oracle-s-documentation">
-<h1>Welcome to Project Oracle&#8217;s documentation!<a class="headerlink" href="#welcome-to-project-oracle-s-documentation" title="Permalink to this headline">¶</a></h1>
-<p>Contents:</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="imageTools.html">Image Analysis Tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Examples.html">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Examples.html#module-Example1">Example1.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Examples.html#module-Test">Test.py</a></li>
-</ul>
-</li>
-</ul>
+  <div class="section" id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<p>Modules in this folder will highlight the main methods of processing images.</p>
+<div class="section" id="module-Example1">
+<span id="example1-py"></span><h2>Example1.py<a class="headerlink" href="#module-Example1" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="Example1.Run">
+<code class="descclassname">Example1.</code><code class="descname">Run</code><span class="sig-paren">(</span><em>Input</em>, <em>Output</em>, <em>Functions</em>, <em>ParameterArray</em><span class="sig-paren">)</span><a class="headerlink" href="#Example1.Run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a list of functions and a list of parameter lists. Runs through each
+one in turn for each file in Input and saves results to output.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Example1.addToolsToPath">
+<code class="descclassname">Example1.</code><code class="descname">addToolsToPath</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Example1.addToolsToPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the pyzota_image_toolbox to path so it can be imported as normal</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-Test">
+<span id="test-py"></span><h2>Test.py<a class="headerlink" href="#module-Test" title="Permalink to this headline">¶</a></h2>
+<p>Short sript to test that all modules can be imported correctly. Test.py sits
+at the correct place in the file hierachy such that pyzota_image_toolbox can be
+imported as a standard package without needing to make changes to the path.</p>
 </div>
 </div>
 
@@ -149,8 +165,8 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="imageTools.html" class="btn btn-neutral float-right" title="Image Analysis Tools" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
+        <a href="imageTools.html" class="btn btn-neutral" title="Image Analysis Tools" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
