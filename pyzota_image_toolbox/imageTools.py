@@ -1,6 +1,13 @@
 """Mix of functions used for image processing and data extraction."""
-import matplotlib.pyplot as plt
 import numpy as np
+from scipy import ndimage as ndi
+import os
+
+import matplotlib.pyplot as plt
+#from mpl_toolkits.aes_grid1 import make_axes_locatable
+from matplotlib.colors import LogNorm
+from matplotlib.ticker import MultipleLocator
+
 from skimage.filters import *
 from skimage.morphology import *
 from skimage import measure
@@ -8,39 +15,67 @@ from skimage import segmentation
 from skimage import io
 from skimage import exposure
 from skimage.feature import peak_local_max
-from scipy import ndimage as ndi
-import tifffile as tif
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from matplotlib.colors import LogNorm
-from matplotlib.ticker import MultipleLocator
-import os
 
-def Setup(InputFolder, OutputFolder):
+import tifffile as tif
+
+def setup(inputFolder, outputFolder):
     '''
     Creates output folder if it doesnt exist and get input file named from input
     file.
     '''
     try:
-        os.stat(OutputFolder)
+        os.stat(outputFolder)
     except:
-        os.mkdir(OutputFolder)
-    filenames = os.listdir(InputFolder+"/")
+        os.mkdir(outputFolder)
+    filenames = os.listdir(inputFolder+"/")
     return filenames
 
-def Open(pathname):
+def createFolder(folderName):
+    '''
+    Crates folder if it doens not already exist.
+    '''
+    try:
+        os.stat(folderName)
+    except:
+        os.mkdir(folderName)
+
+def getFileNamesFromFolder(path):
+    '''
+    Retrives all names of files in folder
+    '''
+    filenames = os.listdir(path+"/")
+    return filenames
+
+def open(pathname):
     '''
     Returns numpy array of image at pathname.
     '''
     Image = plt.imread(pathname)
-    Image_Array = np.array(Image, dtype = np.uint16)
+    Image_Array = np.array(Image)
     return(Image_Array)
 
-def Blurr(Image,sigma):
+def showMe(image, cmap=plt.cm.gray):
+    '''
+    Shows the given image at runtime
+    '''
+    plt.imshow(image, cmap=cmap)
+    if len(np.shape(image)) < 3: plt.colorbar()
+    plt.show()
+
+def blurr(image,sigma=1.0,imageType='RGB'):
     '''
     Perofrms a gaussian blurr on Image with standard deviation sigma.
     '''
-    Blurred_Image = gaussian_filter(Image,sigma=sigma)
-    return(Blurred_Image)
+    blurredImage = np.zeros(np.shape(image))
+    if imageType == 'RGB':
+        for layer in range(np.shape(image)[2]):
+            blurredImage[:,:,layer] =  gaussian_filter(image[:,:,layer],sigma=sigma)
+    if imageType == "sequence":
+        for im in range(np.shape(image)[2]):
+            blurredImage[:,:,im] =  gaussian_filter(image[:,:,im],sigma=sigma)
+    if imageType == "gray":
+        blurredImage =  gaussian_filter(image,sigma=sigma)
+    return(blurredImage)
 
 def Threshold(Image,blockSize):
     '''
