@@ -4,7 +4,7 @@ from scipy import ndimage as ndi
 import os
 
 import matplotlib.pyplot as plt
-#from mpl_toolkits.aes_grid1 import make_axes_locatable
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.colors import LogNorm
 from matplotlib.ticker import MultipleLocator
 
@@ -15,6 +15,9 @@ from skimage import segmentation
 from skimage import io
 from skimage import exposure
 from skimage.feature import peak_local_max
+
+from matplotlib.widgets import  RectangleSelector
+from pylab import *
 
 import tifffile as tif
 
@@ -59,8 +62,36 @@ def showMe(image, cmap=plt.cm.gray):
     Shows the given image at runtime
     '''
     plt.imshow(image, cmap=cmap)
-    if len(np.shape(image)) < 3: plt.colorbar()
+    if len(np.shape(image)) < 2: plt.colorbar()
     plt.show()
+
+def selectReigon(image):
+    ''' Selects reigon of image with mouse clicks'''
+    global mouseCoords
+    mouseCoords = [-1,-1,-1,-1]
+    def onselect(eclick, erelease):
+        #print(' startposition : (%f, %f)' % (eclick.xdata, eclick.ydata))
+        #print(' endposition   : (%f, %f)' % (erelease.xdata, erelease.ydata))
+        #print(' used button   : ', eclick.button)
+        global mouseCoords
+        mouseCoords = [eclick.xdata, erelease.xdata, eclick.ydata, erelease.ydata]
+        plt.close()
+
+    def toggle_selector(event):
+        print(' Key pressed.')
+        if event.key in ['Q', 'q'] and toggle_selector.RS.active:
+            print(' RectangleSelector deactivated.')
+            toggle_selector.RS.set_active(False)
+        if event.key in ['A', 'a'] and not toggle_selector.RS.active:
+            print(' RectangleSelector activated.')
+            toggle_selector.RS.set_active(True)
+    fig = figure
+    ax = subplot(111)
+    ax.imshow(image)
+    toggle_selector.RS = RectangleSelector(ax, onselect, drawtype='box')
+    connect('key_press_event', toggle_selector)
+    plt.show()
+    print(mouseCoords)
 
 def blurr(image,sigma=1.0,imageType='RGB'):
     '''
@@ -180,7 +211,7 @@ def Save(Image,pathname):
     io.imsave(pathname, Image)
 
 
-def Compare(ImageArray,ColorBarArray=None, TitleArray=None):
+def Compare(ImageArray,ColorBarArray=None, TitleArray=None,commonScaleBar=True):
     '''
     Places images side by side for comparsion.
     '''
@@ -198,7 +229,10 @@ def Compare(ImageArray,ColorBarArray=None, TitleArray=None):
         for x in range(columns):
             if(i > len(ImageArray)-1):
                 break
-            im4 = ax[y][x].imshow(ImageArray[i], cmap= "jet",aspect='auto')
+            if commonScaleBar:
+                im4 = ax[y][x].imshow(ImageArray[i], cmap= "jet",aspect='auto', vmin=np.min(ImageArray),vmax=np.max(ImageArray))
+            else:
+                im4 = ax[y][x].imshow(ImageArray[i], cmap= "jet",aspect='auto')
             ax[y][x].axis('off')
             ax[y][x].set_title(TitleArray[i])
             if i+1 in ColorBarArray:
@@ -208,6 +242,7 @@ def Compare(ImageArray,ColorBarArray=None, TitleArray=None):
             ax[y][x].xaxis.set_visible(False)
             i += 1
     plt.tight_layout()
+    plt.show()
     #plt.savefig(FileName + ".png")
 
 def Show():

@@ -10,13 +10,10 @@ from skimage import data
 path = "pyzota_image_toolbox/Examples/ExampleImages"
 
 fileNames = IT.getFileNamesFromFolder(path)
+images = []
 
-RGB = IT.open(path+"/" + fileNames[3])
-grayScale = IT.open(path+"/" + fileNames[2])
+for i in range(len(fileNames)):
+    images.append(IT.open(path+"/" + fileNames[i]))
 
-ColorBlurr = IT.blurr(RGB,10)
-grayBlurr = IT.blurr(grayScale,10,imageType="gray")
-IT.showMe(RGB)
-IT.showMe(ColorBlurr)
-IT.showMe(grayScale)
-IT.showMe(grayBlurr)
+#IT.Compare(images, TitleArray=fileNames, commonScaleBar=False)
+IT.selectReigon(images[0])
