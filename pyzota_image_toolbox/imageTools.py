@@ -2,7 +2,8 @@
 import numpy as np
 from scipy import ndimage as ndi
 import os
-
+import matplotlib
+#matplotlib.use("Qt4Agg")
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.colors import LogNorm
@@ -69,29 +70,26 @@ def selectReigon(image):
     ''' Selects reigon of image with mouse clicks'''
     global mouseCoords
     mouseCoords = [-1,-1,-1,-1]
+
     def onselect(eclick, erelease):
-        #print(' startposition : (%f, %f)' % (eclick.xdata, eclick.ydata))
-        #print(' endposition   : (%f, %f)' % (erelease.xdata, erelease.ydata))
-        #print(' used button   : ', eclick.button)
         global mouseCoords
         mouseCoords = [eclick.xdata, erelease.xdata, eclick.ydata, erelease.ydata]
+        plt.cla()
+        plt.clf()
         plt.close()
-
-    def toggle_selector(event):
-        print(' Key pressed.')
-        if event.key in ['Q', 'q'] and toggle_selector.RS.active:
-            print(' RectangleSelector deactivated.')
-            toggle_selector.RS.set_active(False)
-        if event.key in ['A', 'a'] and not toggle_selector.RS.active:
-            print(' RectangleSelector activated.')
-            toggle_selector.RS.set_active(True)
     fig = figure
     ax = subplot(111)
     ax.imshow(image)
-    toggle_selector.RS = RectangleSelector(ax, onselect, drawtype='box')
-    connect('key_press_event', toggle_selector)
+    R = RectangleSelector(ax, onselect, drawtype='box')
     plt.show()
-    print(mouseCoords)
+    return(mouseCoords)
+
+
+def crop(image,rectangle):
+    '''Crops image using bounding box '''
+    rectangle = np.asarray(rectangle,int)
+    croppedImage = image[rectangle[2]:rectangle[3],rectangle[0]:rectangle[1]]
+    return(croppedImage)
 
 def blurr(image,sigma=1.0,imageType='RGB'):
     '''
