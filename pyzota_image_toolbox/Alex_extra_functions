@@ -1,0 +1,80 @@
+def centering(thresh_im):
+    '''Finds parts of the object definitely associated with the individual image'''
+    '''Useful for segmentation'''
+    print('Removing Noise')
+    kernel=np.ones((1,1),np.uint8)
+    opening = cv2.morphologyEx(thresh_im,cv2.MORPH_OPEN,kernel, iterations=2)
+
+    print('Finding background')
+    #sure background area
+    sure_bg=cv2.dilate(opening,kernel,iterations=1)
+    print('Finding foreground')
+    #finding sure foreground area
+    dist_transform=cv2.distanceTransform(opening,cv2.cv.CV_DIST_L2,0)
+    ret, sure_fg=cv2.threshold(dist_transform,0.99*dist_transform.max(),255,0)
+
+    print('Obtaining unknown region...')
+    #finding unknow region
+    sure_fg = np.uint8(sure_fg)
+    unknown=cv2.subtract(sure_bg,sure_fg)
+
+    #Marker labelling
+    print('Labelling Markers...')
+    ret, markers = cv2.cv.ConnectedComponents(sure_fg)
+    #Add one to all labels so that sure background is not 0 but 1
+    markers=markers+1
+
+    #Mark the unknown regions with 0
+    markers[unknown==255] = 0
+
+    markers=cv2.watershed(thresh_im,markers)
+    thresh_im[markers == -1] = [255,0,0]
+    return(thresh_im)
+
+#Find the edge of an object
+def Edges(img,numberoferosions):
+    '''Find the edge of an object'''
+    print('Finding outlines...')
+    eroded=Erode(img,2)
+    edges=img ^ eroded
+    return(edges)
+
+#Find the endpoints of your skeleton
+def skeleton_endpoints(skel):
+    '''Find the endpoints of your skeleton'''
+    # make out input nice, possibly necessary
+    skel = skel.copy()
+    skel[skel!=0]=1
+    skel=np.uint8(skel)
+
+    #apply the conversion
+    kernel = np.uint8([[1,1,1],[1,10,1],[1,1,1]])
+    src_depth= -1
+    filtered = cv2.filter2D(skel,src_depth,kernel)
+
+    #now look through to find the value of 11
+    #this returns a mask of the endpoints,
+    #but if you just want the coordinates you could simply
+    #return np.where(filtered==11)
+    out = np.zeros_like(skel)
+    out[np.where(filtered==11)]=1
+    return np.where(filtered==11)
+
+def crop(image,rectangle):
+    '''Crops image using bounding box '''
+    rectangle = np.asarray(rectangle,int)
+    rectangle=order(rectangle)
+    croppedImage = image[rectangle[2]:rectangle[3],rectangle[0]:rectangle[1]]
+    return(croppedImage)
+
+def order(coord):
+    '''Orders coordinates correctly for cropping etc'''
+    if coord[2]>coord[3]:
+            temp=coord[2]
+            coord[2]=coord[3]
+            coord[3]=temp
+    if coord[0]>coord[1]:
+            temp=coord[0]
+            coord[0]=coord[1]
+            coord[1]=temp
+    return(coord)
