@@ -2,8 +2,10 @@
 import numpy as np
 from scipy import ndimage as ndi
 import os
+import platform
 import matplotlib
-#matplotlib.use("Qt4Agg")
+if platform.system() == 'Linux':
+    matplotlib.use("GTKAgg")
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.colors import LogNorm
@@ -74,8 +76,6 @@ def selectReigon(image):
     def onselect(eclick, erelease):
         global mouseCoords
         mouseCoords = [eclick.xdata, erelease.xdata, eclick.ydata, erelease.ydata]
-        plt.cla()
-        plt.clf()
         plt.close()
     fig = figure
     ax = subplot(111)
@@ -88,9 +88,25 @@ def selectReigon(image):
 def crop(image,rectangle):
     '''Crops image using bounding box '''
     rectangle = np.asarray(rectangle,int)
-    croppedImage = image[rectangle[2]:rectangle[3],rectangle[0]:rectangle[1]]
+    x1,x2,y1,y2 = mouseToImageCoords(rectangle)
+    croppedImage = image[x1:x2,y1:y2]
     return(croppedImage)
 
+def mouseToImageCoords(rectangle):
+    ''' Converts mouse coordinates to image coordinates'''
+    if rectangle[2] > rectangle[3]:
+        x1 = rectangle[3]
+        x2 = rectangle[2]
+    else:
+        x1 = rectangle[2]
+        x2 = rectangle[3]
+    if rectangle[0] > rectangle[1]:
+        y1 = rectangle[1]
+        y2 = rectangle[0]
+    else:
+        y1 = rectangle[0]
+        y2 = rectangle[1]
+    return x1,x2,y1,y2
 def blurr(image,sigma=1.0,imageType='RGB'):
     '''
     Perofrms a gaussian blurr on Image with standard deviation sigma.

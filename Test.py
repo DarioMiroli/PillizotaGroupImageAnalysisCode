@@ -15,7 +15,7 @@ images = []
 for i in range(len(fileNames)):
     images.append(IT.open(path+"/" + fileNames[i]))
 
-IT.Compare(images, TitleArray=fileNames, commonScaleBar=False)
+#IT.Compare(images, TitleArray=fileNames, commonScaleBar=False)
 rectangle = IT.selectReigon(images[0])
 cropped = IT.crop(images[0],rectangle)
 IT.showMe(cropped)
