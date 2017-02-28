@@ -107,6 +107,7 @@ def mouseToImageCoords(rectangle):
         y1 = rectangle[0]
         y2 = rectangle[1]
     return x1,x2,y1,y2
+    
 def blurr(image,sigma=1.0,imageType='RGB'):
     '''
     Perofrms a gaussian blurr on Image with standard deviation sigma.
