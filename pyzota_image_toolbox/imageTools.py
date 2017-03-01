@@ -24,6 +24,9 @@ from pylab import *
 
 import tifffile as tif
 
+#Custom classes
+from AnnotateImage import Annotate
+
 def setup(inputFolder, outputFolder):
     '''
     Creates output folder if it doesnt exist and get input file named from input
@@ -68,22 +71,13 @@ def showMe(image, cmap=plt.cm.gray):
     if len(np.shape(image)) < 2: plt.colorbar()
     plt.show()
 
-def selectReigon(image):
+def selectReigon(image,bgColor='blue'):
     ''' Selects reigon of image with mouse clicks'''
-    global mouseCoords
-    mouseCoords = [-1,-1,-1,-1]
-
-    def onselect(eclick, erelease):
-        global mouseCoords
-        mouseCoords = [eclick.xdata, erelease.xdata, eclick.ydata, erelease.ydata]
-        plt.close()
-    fig = figure
-    ax = subplot(111)
-    ax.imshow(image)
-    R = RectangleSelector(ax, onselect, drawtype='box')
+    plt.imshow(image)
+    a = Annotate(bgColor)
     plt.show()
-    return(mouseCoords)
-
+    rects = a.getRects()
+    return rects
 
 def crop(image,rectangle):
     '''Crops image using bounding box '''
@@ -107,7 +101,7 @@ def mouseToImageCoords(rectangle):
         y1 = rectangle[0]
         y2 = rectangle[1]
     return x1,x2,y1,y2
-    
+
 def blurr(image,sigma=1.0,imageType='RGB'):
     '''
     Perofrms a gaussian blurr on Image with standard deviation sigma.

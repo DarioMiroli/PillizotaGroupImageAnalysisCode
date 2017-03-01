@@ -16,6 +16,8 @@ for i in range(len(fileNames)):
     images.append(IT.open(path+"/" + fileNames[i]))
 
 #IT.Compare(images, TitleArray=fileNames, commonScaleBar=False)
-rectangle = IT.selectReigon(images[0])
-cropped = IT.crop(images[0],rectangle)
-IT.showMe(cropped)
+rectangles = IT.selectReigon(images[0],'red')
+cropped = []
+for rect in rectangles:
+    cropped.append(IT.crop(images[0],rect))
+IT.Compare(cropped,commonScaleBar=False)
