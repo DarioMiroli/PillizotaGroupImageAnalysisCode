@@ -1,6 +1,7 @@
 """Mix of functions used for image processing and data extraction."""
 import numpy as np
 from scipy import ndimage as ndi
+from scipy import misc
 import os
 import platform
 import matplotlib
@@ -27,7 +28,7 @@ import tifffile as tif
 #Custom classes
 from AnnotateImage import Annotate
 
-def setup(inputFolder, outputFolder):
+def Setup(inputFolder, outputFolder):
     '''
     Creates output folder if it doesnt exist and get input file named from input
     file.
@@ -39,7 +40,7 @@ def setup(inputFolder, outputFolder):
     filenames = os.listdir(inputFolder+"/")
     return filenames
 
-def createFolder(folderName):
+def CreateFolder(folderName):
     '''
     Crates folder if it doens not already exist.
     '''
@@ -48,22 +49,28 @@ def createFolder(folderName):
     except:
         os.mkdir(folderName)
 
-def getFileNamesFromFolder(path):
+def GetFileNamesFromFolder(path,fileOnly = True):
     '''
     Retrives all names of files in folder
     '''
     filenames = os.listdir(path+"/")
-    return filenames
+    if fileOnly:
+        return filenames
+    else:
+        folderAndNames = []
+        for f in filenames:
+            folderAndNames.append(os.path.join(path,f))
+        return folderAndNames
 
-def open(pathname):
+def Open(pathname):
     '''
     Returns numpy array of image at pathname.
     '''
-    Image = plt.imread(pathname)
+    Image = ndi.imread(pathname)
     Image_Array = np.array(Image)
     return(Image_Array)
 
-def showMe(image, cmap=plt.cm.gray):
+def ShowMe(image, cmap=plt.cm.gray):
     '''
     Shows the given image at runtime
     '''
@@ -71,22 +78,24 @@ def showMe(image, cmap=plt.cm.gray):
     if len(np.shape(image)) < 2: plt.colorbar()
     plt.show()
 
-def selectReigon(image,bgColor='blue'):
+def SelectReigon(image,bgColor='blue',title=""):
     ''' Selects reigon of image with mouse clicks'''
     plt.imshow(image)
     a = Annotate(bgColor)
+    plt.title(title)
     plt.show()
     rects = a.getRects()
+    del a
     return rects
 
-def crop(image,rectangle):
+def Crop(image,rectangle):
     '''Crops image using bounding box '''
     rectangle = np.asarray(rectangle,int)
-    x1,x2,y1,y2 = mouseToImageCoords(rectangle)
+    x1,x2,y1,y2 = MouseToImageCoords(rectangle)
     croppedImage = image[x1:x2,y1:y2]
     return(croppedImage)
 
-def mouseToImageCoords(rectangle):
+def MouseToImageCoords(rectangle):
     ''' Converts mouse coordinates to image coordinates'''
     if rectangle[2] > rectangle[3]:
         x1 = rectangle[3]
@@ -102,7 +111,7 @@ def mouseToImageCoords(rectangle):
         y2 = rectangle[1]
     return x1,x2,y1,y2
 
-def blurr(image,sigma=1.0,imageType='RGB'):
+def Blurr(image,sigma=1.0,imageType='RGB'):
     '''
     Perofrms a gaussian blurr on Image with standard deviation sigma.
     '''
@@ -160,8 +169,7 @@ def Label(Image):
     '''
     Labels each connected reigon in Image with a different number
     '''
-    Labelled_Image = measure.label(Image, background=0)
-    Labelled_Image,a,b = segmentation.relabel_sequential(Labelled_Image, offset=1)
+    Labelled_Image = measure.label(Image, background=0,connectivity =2)
     return(Labelled_Image)
 
 def WaterShed(Image):
@@ -179,7 +187,43 @@ def Skeletonize(Image):
     '''
     Reduces Image to a skeleton.
     '''
-    return(skeletonize(Image))
+    return(skeletonize(Image)*1)
+
+def FitSkeleton(Image,degree=2):
+    ''' Returns image with fitted polynomial to given skeleton
+    '''
+    def computey(x,deg):
+        y=0
+        for n in range(deg+1):
+            y += z[deg-n]*x**n
+        return y
+
+    coords = (np.where(Image>0))
+    xs = coords[0]
+    ys = coords[1]
+    zs = z= np.polyfit(xs,ys,degree)
+    width , height = Image.shape
+    newImage = np.zeros((width,height))
+    for x in range(width):
+        y = computey(x,degree)
+        y=int(y)
+        if y>=height: y = height -1
+        if y< 0: y = 0
+        newImage[x,y] =1
+
+    for y in range(height):
+        p = np.poly1d(zs)
+        roots = (p - y).roots
+        for root in roots:
+            if root >=width: root = 0
+            if root < 0: root = 0
+            #newImage[root,y] =1
+    xdata = np.arange(0,width,0.1)
+    ydata = [computey(x,degree) for x in xdata]
+    ydata = np.clip(ydata,0,height)
+    #ydata = width - ydata
+    #xdata = width-xdata
+    return newImage,xdata,ydata
 
 def SiveArea(Image,smallest=0,largest=1E9):
     '''
@@ -195,6 +239,66 @@ def SiveArea(Image,smallest=0,largest=1E9):
         Image[Image==i] = 0
     Image,a,b = segmentation.relabel_sequential(Image)
     return(Image)
+
+def Centering(thresh_im):
+    '''Finds parts of the object definitely associated with the individual image'''
+    '''Useful for segmentation'''
+    print('Removing Noise')
+    kernel=np.ones((1,1),np.uint8)
+    opening = cv2.morphologyEx(thresh_im,cv2.MORPH_OPEN,kernel, iterations=2)
+
+    print('Finding background')
+    #sure background area
+    sure_bg=cv2.dilate(opening,kernel,iterations=1)
+    print('Finding foreground')
+    #finding sure foreground area
+    dist_transform=cv2.distanceTransform(opening,cv2.cv.CV_DIST_L2,0)
+    ret, sure_fg=cv2.threshold(dist_transform,0.99*dist_transform.max(),255,0)
+
+    print('Obtaining unknown region...')
+    #finding unknow region
+    sure_fg = np.uint8(sure_fg)
+    unknown=cv2.subtract(sure_bg,sure_fg)
+
+    #Marker labelling
+    print('Labelling Markers...')
+    ret, markers = cv2.cv.ConnectedComponents(sure_fg)
+    #Add one to all labels so that sure background is not 0 but 1
+    markers=markers+1
+
+    #Mark the unknown regions with 0
+    markers[unknown==255] = 0
+
+    markers=cv2.watershed(thresh_im,markers)
+    thresh_im[markers == -1] = [255,0,0]
+    return(thresh_im)
+
+def Edges(img,numberoferosions):
+    '''Find the edge of an object'''
+    print('Finding outlines...')
+    eroded=Erode(img,2)
+    edges=img ^ eroded
+    return(edges)
+
+def skeleton_endpoints(skel):
+    '''Find the endpoints of your skeleton'''
+    # make out input nice, possibly necessary
+    skel = skel.copy()
+    skel[skel!=0]=1
+    skel=np.uint8(skel)
+
+    #apply the conversion
+    kernel = np.uint8([[1,1,1],[1,10,1],[1,1,1]])
+    src_depth= -1
+    filtered = cv2.filter2D(skel,src_depth,kernel)
+
+    #now look through to find the value of 11
+    #this returns a mask of the endpoints,
+    #but if you just want the coordinates you could simply
+    #return np.where(filtered==11)
+    out = np.zeros_like(skel)
+    out[np.where(filtered==11)]=1
+    return np.where(filtered==11)
 
 def Fill(Image):
     '''
@@ -217,7 +321,7 @@ def Save(Image,pathname):
     '''
     Saves image to pathname as png.
     '''
-    io.imsave(pathname, Image)
+    misc.imsave(pathname, Image)
 
 
 def Compare(ImageArray,ColorBarArray=None, TitleArray=None,commonScaleBar=True):
@@ -276,3 +380,14 @@ def FolderCompare(FolderName):
         Images.append(Open(os.path.join(FolderName,file)))
     Compare(Images)
     Show()
+
+def AniShow(images,delay=1,cmap='gray',title=""):
+    plt.ion()
+    for image in images:
+        plt.clf()
+        plt.title(title)
+        plt.imshow(image,interpolation='none',cmap=cmap)
+        plt.colorbar()
+        plt.pause(delay)
+    plt.close()
+    plt.ioff()
