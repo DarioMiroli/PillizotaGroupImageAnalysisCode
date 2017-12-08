@@ -2,9 +2,15 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
 class Annotate(object):
-    def __init__(self, color='blue'):
+    def __init__(self, color='blue',ax = None, mode ='Rects',data=None):
+        self.mode = mode
+        if ax == None:
+            self.ax = plt.gca()
+        else:
+            self.ax = ax
+        if mode == 'Rmv':
+            self.data = data
         self.color = color
-        self.ax = plt.gca()
         self.rects = []
         self.xs = []
         self.ys = []
@@ -18,19 +24,33 @@ class Annotate(object):
         self.goodStart = False
 
     def on_press(self, event):
-        if not self.pressed:
-            self.pressed = True
-            self.goodStart = False
-            if event.xdata != None and event.ydata !=None:
-                self.goodStart = True
-                self.rects.append(Rectangle((0.1,0.1), 1, 1, alpha=0.5, color = self.color))
-                self.xs.append([0,0])
-                self.ys.append([0,0])
-                self.xs[self.rectID][0] = event.xdata
-                self.ys[self.rectID][0] = event.ydata
-                patch = self.rects[self.rectID]
-                self.patches.append(patch)
-                self.ax.add_patch(patch)
+        if self.mode == 'Rmv':
+            title = self.ax.get_title()
+            print(title)
+            self.ax.cla()
+            self.ax.figure.canvas.draw_idle()
+            x,y = int(event.xdata) , int(event.ydata)
+            value = self.data[y][x]
+            self.data[self.data==value] = -1
+            self.ax.imshow(self.data, cmap= "jet",interpolation='None')
+            self.ax.figure.canvas.draw_idle()
+            self.ax.set_title(title)
+
+
+        if self.mode == 'Rects':
+            if not self.pressed:
+                self.pressed = True
+                self.goodStart = False
+                if event.xdata != None and event.ydata !=None:
+                    self.goodStart = True
+                    self.rects.append(Rectangle((0.1,0.1), 1, 1, alpha=0.5, color = self.color))
+                    self.xs.append([0,0])
+                    self.ys.append([0,0])
+                    self.xs[self.rectID][0] = event.xdata
+                    self.ys[self.rectID][0] = event.ydata
+                    patch = self.rects[self.rectID]
+                    self.patches.append(patch)
+                    self.ax.add_patch(patch)
 
 
     def on_motion(self,event):
@@ -72,3 +92,6 @@ class Annotate(object):
             y2 = y1 + rec.get_height()
             recArray.append([x1,x2,y1,y2])
         return recArray
+
+    def getData(self):
+        return self.data

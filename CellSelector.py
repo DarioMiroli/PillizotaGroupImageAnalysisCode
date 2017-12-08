@@ -1,7 +1,7 @@
 from pyzota_image_toolbox import imageTools as IT
 
-folder = "/run/user/1001/gvfs/smb-share:server=csce.datastore.ed.ac.uk,share=csce/biology/groups/pilizota/Dario/Data/GrowthAtHigherOsmolarities/28_11_17/ProperDilution_M63+Glu+CAA_OD_0-32_Incubation_15min/Slide1"
-croppedFolder = "./Slide1_CroppedCells"
+folder = "/run/user/1001/gvfs/smb-share:server=csce.datastore.ed.ac.uk,share=csce/biology/groups/pilizota/Dario/Data/GrowthAtHigherOsmolarities/30_11_17/40mM_NaCl_M63+Glu+CAA_OD_0-32/Slide2/"
+croppedFolder = "./Analysis/400mM_Slide1_CroppedCells"
 
 IT.CreateFolder(croppedFolder)
 fileNamesPlusFolder = IT.GetFileNamesFromFolder(folder,fileOnly=False)

@@ -4,6 +4,7 @@ from scipy import ndimage as ndi
 from scipy import misc
 import os
 import platform
+import pickle
 import matplotlib
 if platform.system() == 'Linux':
     matplotlib.use("GTKAgg")
@@ -18,6 +19,7 @@ from skimage import measure
 from skimage import segmentation
 from skimage import io
 from skimage import exposure
+from skimage.measure import *
 from skimage.feature import peak_local_max
 
 from matplotlib.widgets import  RectangleSelector
@@ -30,7 +32,7 @@ from AnnotateImage import Annotate
 
 def Setup(inputFolder, outputFolder):
     '''
-    Creates output folder if it doesnt exist and get input file named from input
+    Creates output folder if it doesnt exist and get input file names from input
     file.
     '''
     try:
@@ -62,6 +64,16 @@ def GetFileNamesFromFolder(path,fileOnly = True):
             folderAndNames.append(os.path.join(path,f))
         return folderAndNames
 
+def StripImageFiles(fileNames, OKExtensions =["tiff","tif"]):
+    '''
+    Removes files with the wrong extension from a list of files
+    '''
+    acceptedFiles = []
+    for f in fileNames:
+        if f.split(".")[-1] in OKExtensions:
+            acceptedFiles.append(f)
+    return acceptedFiles
+
 def Open(pathname):
     '''
     Returns numpy array of image at pathname.
@@ -74,7 +86,7 @@ def ShowMe(image, cmap=plt.cm.gray):
     '''
     Shows the given image at runtime
     '''
-    plt.imshow(image, cmap=cmap)
+    plt.imshow(image, cmap=cmap,interpolation='none')
     if len(np.shape(image)) < 2: plt.colorbar()
     plt.show()
 
@@ -87,6 +99,18 @@ def SelectReigon(image,bgColor='blue',title=""):
     rects = a.getRects()
     del a
     return rects
+
+def CompareAnnotate(images,bgColor='blue',ColorBarArray=None, TitleArray=None,
+        commonScaleBar=True, axX=1,axY=1,mode='Recs',data=None):
+    '''Allows annotation of multiple compared images'''
+    ax = Compare(images,ColorBarArray=ColorBarArray,TitleArray=TitleArray,
+            commonScaleBar=commonScaleBar, show=False)
+    a = Annotate(bgColor,ax=ax[axX][axY],mode='Rmv',data=data)
+    plt.title(title)
+    plt.show()
+    finalData = a.getData()
+    del a
+    return finalData
 
 def Crop(image,rectangle):
     '''Crops image using bounding box '''
@@ -135,13 +159,14 @@ def Threshold(Image,blockSize):
     Threshold_Image = threshold_adaptive(Image, blockSize)
     return(Threshold_Image)
 
-def GlobalThreshold(Image):
+def GlobalThreshold(Image,threshold=None):
     '''
     Simple threshold of image using single threshold value over whole image.
     '''
-    thresh = threshold_otsu(Image)
-    Image = Image > thresh
-    return(Image)
+    if threshold == None:
+        threshold = threshold_otsu(Image)
+    Image = Image > threshold
+    return(Image*1)
 
 def Erode(Image,numberoftimes):
     '''
@@ -172,6 +197,28 @@ def Label(Image):
     Labelled_Image = measure.label(Image, background=0,connectivity =2)
     return(Labelled_Image)
 
+def BboxImages(Image,mask):
+    '''
+    Returns a vounding box image for each label in an image
+    '''
+    bBoxedImages = []
+    bBoxedMasks = []
+    l = Label(mask)
+    props = measure.regionprops(l)
+    print("props",len(props))
+    for prop in props:
+        x1,y1,x2,y2 = prop.bbox
+        bBoxedImages.append(Image[x1-10:x2+10,y1-10:y2+10])
+        bBoxedMasks.append(mask[x1-2:x2+2,y1-2:y2+2])
+    return bBoxedImages, bBoxedMasks
+
+def GetArea(Image):
+    '''
+    Get area from binary mask
+    '''
+    props = measure.regionprops(Image)
+    print(props)
+
 def WaterShed(Image):
     '''
     Performs water shed transform on Image. Useful for segmentation of connected
@@ -189,41 +236,60 @@ def Skeletonize(Image):
     '''
     return(skeletonize(Image)*1)
 
+def ComputePoly(x,zs):
+    '''
+    Computes y value from given x value and polynomial coefficients
+    '''
+    deg = len(zs)-1
+    y=0
+    for n in range(deg+1):
+        y += zs[deg-n]*x**n
+    return y
+
 def FitSkeleton(Image,degree=2):
     ''' Returns image with fitted polynomial to given skeleton
     '''
-    def computey(x,deg):
-        y=0
-        for n in range(deg+1):
-            y += z[deg-n]*x**n
-        return y
-
     coords = (np.where(Image>0))
     xs = coords[0]
     ys = coords[1]
-    zs = z= np.polyfit(xs,ys,degree)
+    zs = np.polyfit(xs,ys,degree)
     width , height = Image.shape
     newImage = np.zeros((width,height))
     for x in range(width):
-        y = computey(x,degree)
+        y = ComputePoly(x,zs)
         y=int(y)
         if y>=height: y = height -1
         if y< 0: y = 0
         newImage[x,y] =1
 
-    for y in range(height):
-        p = np.poly1d(zs)
-        roots = (p - y).roots
-        for root in roots:
-            if root >=width: root = 0
-            if root < 0: root = 0
-            #newImage[root,y] =1
     xdata = np.arange(0,width,0.1)
-    ydata = [computey(x,degree) for x in xdata]
+    ydata = [ComputePoly(x,zs) for x in xdata]
     ydata = np.clip(ydata,0,height)
-    #ydata = width - ydata
-    #xdata = width-xdata
-    return newImage,xdata,ydata
+    return newImage,xdata,ydata,zs
+
+def getCellLength(Image,zs):
+    if len(zs) == 2:
+        started = False
+        width,height = Image.shape
+        startPoint = -1
+        endPoint =-1
+        for x in range(width):
+            y = ComputePoly(x,zs)
+            if y>=height: y = height -1
+            if y< 0: y = 0
+            if Image[x,y] > 0 and not started:
+                startPoint = [x,y]
+                started = True
+            if Image[x,y] > 0 and started:
+                endPoint = [x,y]
+        if startPoint != -1 and endPoint != -1:
+            cellLength = ((1+zs[0]**2)**0.5)*(endPoint[0]-startPoint[0])
+        else:
+            cellLength = -1
+    else:
+        print("Not polynomial fit")
+        exit()
+    return cellLength
 
 def SiveArea(Image,smallest=0,largest=1E9):
     '''
@@ -324,7 +390,8 @@ def Save(Image,pathname):
     misc.imsave(pathname, Image)
 
 
-def Compare(ImageArray,ColorBarArray=None, TitleArray=None,commonScaleBar=True):
+def Compare(ImageArray,ColorBarArray=None, TitleArray=None,
+        commonScaleBar=True,show=True):
     '''
     Places images side by side for comparsion.
     '''
@@ -343,20 +410,21 @@ def Compare(ImageArray,ColorBarArray=None, TitleArray=None,commonScaleBar=True):
             if(i > len(ImageArray)-1):
                 break
             if commonScaleBar:
-                im4 = ax[y][x].imshow(ImageArray[i], cmap= "jet",aspect='auto', vmin=np.min(ImageArray),vmax=np.max(ImageArray))
+                im4 = ax[y][x].imshow(ImageArray[i], cmap= "jet",interpolation='None', vmin=np.min(ImageArray),vmax=np.max(ImageArray))
             else:
-                im4 = ax[y][x].imshow(ImageArray[i], cmap= "jet",aspect='auto')
-            ax[y][x].axis('off')
+                im4 = ax[y][x].imshow(ImageArray[i], cmap= "jet",interpolation='None')
+            #ax[y][x].axis('off')
             ax[y][x].set_title(TitleArray[i])
             if i+1 in ColorBarArray:
                 divider4 = make_axes_locatable(ax[y][x])
                 ax[y][x] = divider4.append_axes("right", size="5%", pad=0.05)
                 cbar4 = plt.colorbar(im4, cax=ax[y][x])
-            ax[y][x].xaxis.set_visible(False)
+            #ax[y][x].xaxis.set_visible(False)
             i += 1
     plt.tight_layout()
-    plt.show()
-    #plt.savefig(FileName + ".png")
+    if show:
+        plt.show()
+    return ax
 
 def Show():
     '''
@@ -369,6 +437,21 @@ def SavePlot(filename):
     Saves plot to pathname as png.
     '''
     plt.savefig(filename + ".png")
+
+def SaveCellToFile(cellImage,binaryImage,parentFolder,fileName,path):
+    '''
+    Saves cell image to pickle file
+    '''
+    dictionary = {"ParentFolder":parentFolder,"FileName":fileName,
+            "RawImage":cellImage, "BinaryMask":binaryImage}
+    f = open(path,'a')
+    pickle.dump(dictionary, f)
+    f.close()
+
+def LoadCellFromFile(path):
+    f = open(path,'r')
+    dictionary = pickle.load(f)
+    return dictionary
 
 def FolderCompare(FolderName):
     '''
