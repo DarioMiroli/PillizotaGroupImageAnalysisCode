@@ -197,6 +197,13 @@ def Label(Image):
     Labelled_Image = measure.label(Image, background=0,connectivity =2)
     return(Labelled_Image)
 
+def ClearBorders(Image):
+    '''
+    Removes objects connected to image edges
+    '''
+    labeled = Image - np.amin(Image)#measure.label(Image,connectivity =2)
+    return segmentation.clear_border(labeled)+np.amin(Image)
+
 def BboxImages(Image,mask):
     '''
     Returns a vounding box image for each label in an image
@@ -209,7 +216,7 @@ def BboxImages(Image,mask):
     for prop in props:
         x1,y1,x2,y2 = prop.bbox
         bBoxedImages.append(Image[x1-10:x2+10,y1-10:y2+10])
-        bBoxedMasks.append(mask[x1-2:x2+2,y1-2:y2+2])
+        bBoxedMasks.append(mask[x1-10:x2+2,y1-10:y2+10])
     return bBoxedImages, bBoxedMasks
 
 def GetArea(Image):
@@ -217,7 +224,11 @@ def GetArea(Image):
     Get area from binary mask
     '''
     props = measure.regionprops(Image)
-    print(props)
+    area = None
+    for prop in props:
+        if prop.label !=1:
+            area = prop.area
+    return area
 
 def WaterShed(Image):
     '''

@@ -38,16 +38,17 @@ M1.compileModel()
 
 
 for i,f in enumerate(fileNames):
+    print("Processed up to image {}".format(i))
     image = IT.Open(pathToData+f)
     rects = IT.SelectReigon(image,
             title="Processing Image {} of {} .".format(i,len(fileNames)))
     for rec in rects:
         ROI = IT.Crop(image,rec)
         segmented = M1.predict([ROI])[0]
-        labelled = IT.Label(IT.GlobalThreshold(segmented,0.9))
+        labelled = IT.Label(IT.GlobalThreshold(segmented,0.5))
         vetted = IT.CompareAnnotate([ROI,labelled],commonScaleBar=False,
                 TitleArray=["ROI","Segmented"],data=labelled)
         bBoxImages,bBoxMasks = IT.BboxImages(ROI,vetted+2)
         for b,box in enumerate(bBoxMasks):
             IT.SaveCellToFile(bBoxImages[b],box,outputFolder,f,
-                    outputFolderPath+"/" + outputFile)
+            outputFolderPath+"/" + outputFile)

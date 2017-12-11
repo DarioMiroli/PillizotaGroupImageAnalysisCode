@@ -36,7 +36,6 @@ class Annotate(object):
             self.ax.figure.canvas.draw_idle()
             self.ax.set_title(title)
 
-
         if self.mode == 'Rects':
             if not self.pressed:
                 self.pressed = True
@@ -64,7 +63,6 @@ class Annotate(object):
 
 
     def on_release(self, event):
-        self.pressed = False
         if event.xdata != None and event.ydata!= None and self.goodStart:
             self.xs[self.rectID][1] = event.xdata
             self.ys[self.rectID][1] = event.ydata
@@ -73,6 +71,8 @@ class Annotate(object):
             self.rects[self.rectID].set_height(self.ys[self.rectID][1] - self.ys[self.rectID][0])
             self.ax.figure.canvas.draw()
             self.rectID = self.rectID + 1
+            self.pressed = False
+
 
     def on_key_press(self,event):
         if event.key == 'z' and not self.pressed:
