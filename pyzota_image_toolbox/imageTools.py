@@ -219,6 +219,124 @@ def BboxImages(Image,mask):
         bBoxedMasks.append(mask[x1-10:x2+2,y1-10:y2+10])
     return bBoxedImages, bBoxedMasks
 
+def GetSebLength(Image):
+    #Tidy up iamge for analysis. Clear it flip it if necessary
+    cleared = ClearBorders(Image)
+    cleared = cleared-np.amin(cleared)
+    props = measure.regionprops(cleared)
+    x1,y1,x2,y2 = props[0].bbox
+    box = cleared[x1:x2,y1:y2]
+    width , height = box.shape
+    if width > height:
+        box = np.swapaxes(box,0,1)
+        width , height = box.shape
+
+    #Compute all points on top and bottom of cell
+    topPoints= []
+    bottomPoints = []
+    for y in range(height):
+        topIntersection = None
+        bottomIntersection = None
+        for x in range(width):
+            if box[x][y] > 0 and topIntersection == None:
+                topIntersection = x
+            if box[width-1-x][y] > 0 and bottomIntersection == None:
+                bottomIntersection = width-1-x
+        topPoints.append([topIntersection,y])
+        bottomPoints.append([bottomIntersection,y])
+        #plt.plot(y,topIntersection,'*',color='g',markersize=25)
+        #plt.plot(y,bottomIntersection,'*',color='y',markersize=25)
+
+    #Get edge points in order
+    normBox = ((box-np.amin(box))/np.amax(box))
+    edgeImage =  np.pad(normBox - Erode(normBox,1),0,'constant')
+    xedgePixels, yedgePixels = np.where(edgeImage>0)
+    #plt.plot(yedgePixels,xedgePixels)
+    plt.imshow(edgeImage,interpolation='None')
+    plt.show()
+
+    #Order Edge Points
+    orderedEdgePoints = []
+    ys = list(np.arange(height)) + list(np.arange(height,0,-1))
+    for delta in [1,-1]:
+        for y in range(height):
+            tempPoints = []
+            on = False
+            off = False
+            if np.sum(edgeImage[:,y]) >2:
+                for x in range(width):
+                    if edgeImage[delta*x][y] > 0:
+                        on = True
+                    if edgeImage[delta*x][y] == 0 and on:
+                        off = True
+                    if on and not off and edgeImage[delta*x][y]>0:
+                        if delta == 1:
+                            tempPoints.append([x,y])
+                        if delta!=1 and y!=0:
+                            tempPoints.append([width-x,y])
+                if y>0:
+                    if tempPoints[0][1] < orderedEdgePoints[-1][0]:
+                        tempPoints = tempPoints[::-1]
+                else:
+                    tempPoints = tempPoints[::-1]
+                orderedEdgePoints = orderedEdgePoints+ tempPoints
+            else:
+                for x in range(width):
+                    if edgeImage[delta*x][y] > 0:
+                        if delta == 1:
+                            orderedEdgePoints = orderedEdgePoints + [[x,y]]
+                            break
+                        else:
+                            if x != 0:
+                                orderedEdgePoints = orderedEdgePoints + [[width-x,y]]
+                                break
+        orderedEdgePoints= orderedEdgePoints[::-1]
+    #Remove duplicates
+    newOEPoints = []
+    for i in range(len(orderedEdgePoints)):
+        if not (orderedEdgePoints[i] in orderedEdgePoints[0:i]):
+            newOEPoints.append(orderedEdgePoints[i])
+    orderedEdgePoints = newOEPoints
+    orderedXs = [orderedEdgePoints[i][0] for i in range(len(orderedEdgePoints))]
+    orderedYs = [orderedEdgePoints[i][1] for i in range(len(orderedEdgePoints))]
+
+    plt.clf()
+    plt.imshow(edgeImage,interpolation='None')
+    plt.scatter(orderedYs,orderedXs,c=np.arange(len(orderedXs)))
+    plt.show()
+    plt.clf()
+
+
+
+    #Take middle point on cell top
+    midPointx = topPoints[height//2][0]
+    midPointy = height//2
+    midPoint = [midPointx,midPointy]
+    plt.plot(midPointy,midPointx,'*',color='k',markersize=25)
+
+    #Compute distance to all other points on bottom
+    test = []
+    for startPoint in topPoints:
+        dist = 1E10
+        companionPoint = [0,0]
+        for point in bottomPoints:
+            x1,y1 = startPoint[0] , startPoint[1]
+            x2 ,y2 = point[0],point[1]
+            newdist = (  (x2-x1)**2 + (y2-y1)**2  )**0.5
+            test.append(newdist)
+            if newdist <= dist:
+                dist = newdist
+                companionPoint = [x2,y2]
+        plt.plot(test)
+        plt.plot([y1,companionPoint[1]],[x1,companionPoint[0]],'--')
+        plt.plot(29,22 ,'*',color='k',markersize=25)
+
+    plt.imshow(box,interpolation='None')
+
+
+    #plt.show()
+
+
 def GetArea(Image):
     '''
     Get area from binary mask
@@ -245,6 +363,7 @@ def Skeletonize(Image):
     '''
     Reduces Image to a skeleton.
     '''
+    Image = (Image - np.amin(Image))/np.amax(Image)
     return(skeletonize(Image)*1)
 
 def ComputePoly(x,zs):

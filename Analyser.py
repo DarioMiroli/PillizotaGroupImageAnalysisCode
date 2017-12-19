@@ -3,39 +3,36 @@ import sys
 import pickle
 import matplotlib.pyplot as plt
 import numpy as np
-dataFolder = "./Analysis/40mM_NaCl_M63+Glu+CAA_OD_0-32/CellData.pickle"
 
+dataFolder = "./Analysis/40mM_NaCl_M63+Glu+CAA_OD_0-32/400mM_NaCl_Slide1.pickle"
+areaCutOff = 10
 f = open(dataFolder,'r')
 endOfFile = False
-areas = []
-plt.ion()
-i=0
+dataDic = {"Areas":[],"Widths":[],"Lengths":[]}
+
+#plt.ion()
 while not endOfFile:
-    i+=1
     try:
         d = pickle.load(f)
         mask = d["BinaryMask"]
-        if len(np.unique(mask)) != 2:
-            if len(np.unique(mask)) > 2:
-                cleared = IT.ClearBorders(mask)
-                areas.append(IT.GetArea(cleared))
-        else:
-            areas.append(IT.GetArea(d["BinaryMask"]))
-        plt.clf()
-        #plt.imshow(d["RawImage"],cmap='gray',alpha =1)
-        if areas[-1] < 5:
-            del areas[-1]
-        if areas[-1] < 350:
-            plt.imshow(mask,alpha=1,interpolation='None')
-            plt.colorbar()
-            plt.pause(0.5)
-            plt.title(str(i))
-            print(i,areas[-1])
+        if mask.size > 10:
+            mask = IT.ClearBorders(mask)
+            area = IT.GetArea(mask)
+            if area > areaCutOff:
+                dataDic["Areas"].append(area)
+                Length = IT.GetSebLength(mask)
+                #plt.imshow(mask,interpolation = "None")
+                #plt.show()
+                #plt.title(area)
+                #plt.pause(5)
+                #plt.clf()
+
+
     except EOFError:
         print("End of File")
         endOfFile = True
-plt.clf()
-plt.ioff()
-plt.hist(areas,bins=[i*50 for i in range(50)])
-plt.show()
-print("Done")
+    #exit()
+#Plot Histograms
+#plt.ioff()
+#plt.hist(dataDic["Areas"],bins=[100*i for i in range(30)])
+#plt.show()
