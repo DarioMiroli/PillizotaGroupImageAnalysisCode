@@ -2,6 +2,7 @@
 import numpy as np
 from scipy import ndimage as ndi
 from scipy import misc
+import scipy.fftpack
 import os
 import platform
 import pickle
@@ -219,7 +220,7 @@ def BboxImages(Image,mask):
         bBoxedMasks.append(mask[x1-10:x2+2,y1-10:y2+10])
     return bBoxedImages, bBoxedMasks
 
-def GetSebLength(Image):
+def GetSebLength(Image,count):
     #Tidy up iamge for analysis. Clear it flip it if necessary
     cleared = ClearBorders(Image)
     cleared = cleared-np.amin(cleared)
@@ -251,9 +252,6 @@ def GetSebLength(Image):
     normBox = ((box-np.amin(box))/np.amax(box))
     edgeImage =  np.pad(normBox - Erode(normBox,1),0,'constant')
     xedgePixels, yedgePixels = np.where(edgeImage>0)
-    #plt.plot(yedgePixels,xedgePixels)
-    plt.imshow(edgeImage,interpolation='None')
-    plt.show()
 
     #Order Edge Points
     orderedEdgePoints = []
@@ -300,41 +298,70 @@ def GetSebLength(Image):
     orderedXs = [orderedEdgePoints[i][0] for i in range(len(orderedEdgePoints))]
     orderedYs = [orderedEdgePoints[i][1] for i in range(len(orderedEdgePoints))]
 
-    plt.clf()
-    plt.imshow(edgeImage,interpolation='None')
-    plt.scatter(orderedYs,orderedXs,c=np.arange(len(orderedXs)))
-    plt.show()
-    plt.clf()
-
-
-
-    #Take middle point on cell top
-    midPointx = topPoints[height//2][0]
-    midPointy = height//2
-    midPoint = [midPointx,midPointy]
-    plt.plot(midPointy,midPointx,'*',color='k',markersize=25)
-
-    #Compute distance to all other points on bottom
-    test = []
-    for startPoint in topPoints:
-        dist = 1E10
-        companionPoint = [0,0]
-        for point in bottomPoints:
-            x1,y1 = startPoint[0] , startPoint[1]
-            x2 ,y2 = point[0],point[1]
-            newdist = (  (x2-x1)**2 + (y2-y1)**2  )**0.5
-            test.append(newdist)
-            if newdist <= dist:
-                dist = newdist
-                companionPoint = [x2,y2]
-        plt.plot(test)
-        plt.plot([y1,companionPoint[1]],[x1,companionPoint[0]],'--')
-        plt.plot(29,22 ,'*',color='k',markersize=25)
-
-    plt.imshow(box,interpolation='None')
-
-
+    #plt.clf()
+    #plt.imshow(edgeImage,interpolation='None')
+    #plt.scatter(orderedYs,orderedXs,c=np.arange(len(orderedXs)))
     #plt.show()
+    #plt.clf()
+
+    #Find mid index
+    midPoint = np.argmin(np.abs(np.asarray(orderedYs)-height/2.0))
+
+    #Run around cell from mid index calcing curvature
+    curveLength = 10
+    curvatures = []
+    plt.ion()
+    for i in range(midPoint,len(orderedEdgePoints)+midPoint):
+        plt.imshow(edgeImage,interpolation='None')
+        plt.plot(orderedYs[i-curveLength:(i+curveLength)%len(orderedEdgePoints)+1],
+                orderedXs[i-curveLength:(i+curveLength)%len(orderedEdgePoints)+1],
+                'o-')
+        x1 = orderedXs[(i-curveLength)%len(orderedEdgePoints)]
+        x2 = orderedXs[(i+curveLength)%len(orderedEdgePoints)]
+        y1 = orderedYs[(i-curveLength)%len(orderedEdgePoints)   ]
+        y2 = orderedYs[(i+curveLength)%len(orderedEdgePoints)]
+        dist = ( (x2-x1)**2 + (y2-y1)**2 )**0.5
+        #dist = abs(x2-x1) + abs(y2-y1)
+        curvatures.append(dist)
+        #plt.title(dist)
+        #plt.pause(0.0001)
+        #plt.clf()
+
+    #clear up figure
+    plt.ioff()
+    plt.close()
+    plt.clf()
+
+    #Mark polls
+    leftData = curvatures[0:len(curvatures)//2]
+    leftPole = np.argmin(leftData)
+    rightData = curvatures[len(curvatures)//2:]
+    rightPole = np.argmin(rightData)
+
+    #Smooth with ft
+    w = scipy.fftpack.rfft(curvatures)
+    spectrum = w**2
+    cutoff_idx = spectrum < (spectrum.max()/50000)
+    w2 = w.copy()
+    w2[cutoff_idx] = 0
+    y2 = scipy.fftpack.irfft(w2)
+    leftPole2 = np.argmin(y2[0:len(curvatures)//2])
+    rightPole2 = np.argmin(y2[len(curvatures)//2:])
+
+    #Create skeleton with poles added
+    BackBone = Skeletonize(normBox)
+    BackBone[orderedXs[leftPole2+midPoint] , orderedYs[leftPole2+midPoint]] = 1
+    BackBone[orderedXs[(rightPole2+midPoint+len(curvatures)//2)%len(orderedXs)],
+            orderedYs[(rightPole2+midPoint+len(curvatures)//2)%len(orderedYs)]]=1
+    newImage,ydata,xdata,zs= FitSkeleton(np.transpose(BackBone))
+    plt.ion()
+    plt.imshow(normBox,interpolation='None')
+    plt.plot(ydata,xdata)
+    plt.title(count)
+    plt.pause(0.01)
+    plt.clf()
+
+
 
 
 def GetArea(Image):

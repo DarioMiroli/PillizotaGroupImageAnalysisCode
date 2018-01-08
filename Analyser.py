@@ -9,8 +9,8 @@ areaCutOff = 10
 f = open(dataFolder,'r')
 endOfFile = False
 dataDic = {"Areas":[],"Widths":[],"Lengths":[]}
-
-#plt.ion()
+jj=0
+plt.ion()
 while not endOfFile:
     try:
         d = pickle.load(f)
@@ -18,9 +18,10 @@ while not endOfFile:
         if mask.size > 10:
             mask = IT.ClearBorders(mask)
             area = IT.GetArea(mask)
+            jj+=1
             if area > areaCutOff:
                 dataDic["Areas"].append(area)
-                Length = IT.GetSebLength(mask)
+                Length = IT.GetSebLength(mask,jj)
                 #plt.imshow(mask,interpolation = "None")
                 #plt.show()
                 #plt.title(area)
