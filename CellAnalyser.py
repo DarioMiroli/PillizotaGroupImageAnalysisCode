@@ -11,8 +11,8 @@ from MachineSegmenter import MachineSegmenter
 #**************************** Enter input file here ***************************#
 dataStore = ("/run/user/1001/gvfs/smb-share:server=csce.datastore.ed.ac.uk,shar"
         "e=csce/biology/groups/pilizota/")
-pathToData = ("Dario/Data/GrowthAtHigherOsmolarities/30_11_17/40mM_NaCl_M63"
-        "+Glu+CAA_OD_0-32/Slide2/")
+pathToData = ("Dario/Data/GrowthAtHigherOsmolarities/5_12_17/600mM_NaCl_M63"
+        "_Glu_CAA_OD_/Slide1Compiled/")
 outputFolder =  pathToData.split("/")[-3]
 outputFile = "CellData.pickle"
 #**************************** Enter input file here ***************************#
