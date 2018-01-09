@@ -10,7 +10,6 @@ f = open(dataFolder,'r')
 endOfFile = False
 dataDic = {"Areas":[],"Widths":[],"Lengths":[]}
 jj=0
-plt.ion()
 while not endOfFile:
     try:
         d = pickle.load(f)
@@ -21,19 +20,23 @@ while not endOfFile:
             jj+=1
             if area > areaCutOff:
                 dataDic["Areas"].append(area)
-                Length = IT.GetSebLength(mask,jj)
-                #plt.imshow(mask,interpolation = "None")
-                #plt.show()
-                #plt.title(area)
-                #plt.pause(5)
-                #plt.clf()
-
+                length,width = IT.GetLengthAndWidth(mask,jj)
+                dataDic["Lengths"].append(length)
+                dataDic["Widths"].append(width)
 
     except EOFError:
         print("End of File")
         endOfFile = True
-    #exit()
+
 #Plot Histograms
-#plt.ioff()
-#plt.hist(dataDic["Areas"],bins=[100*i for i in range(30)])
-#plt.show()
+plt.ioff()
+plt.clf()
+
+plt.hist(dataDic["Areas"],bins=np.linspace(0,2000,50))
+plt.show()
+
+plt.hist(dataDic["Lengths"],bins=np.linspace(0,300,50))
+plt.show()
+
+plt.hist(dataDic["Widths"],bins=np.linspace(0,30,50))
+plt.show()

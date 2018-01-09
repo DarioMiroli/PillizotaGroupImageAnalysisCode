@@ -220,7 +220,7 @@ def BboxImages(Image,mask):
         bBoxedMasks.append(mask[x1-10:x2+2,y1-10:y2+10])
     return bBoxedImages, bBoxedMasks
 
-def GetSebLength(Image,count):
+def GetLengthAndWidth(Image,count):
     #Tidy up iamge for analysis. Clear it flip it if necessary
     cleared = ClearBorders(Image)
     cleared = cleared-np.amin(cleared)
@@ -245,8 +245,6 @@ def GetSebLength(Image,count):
                 bottomIntersection = width-1-x
         topPoints.append([topIntersection,y])
         bottomPoints.append([bottomIntersection,y])
-        #plt.plot(y,topIntersection,'*',color='g',markersize=25)
-        #plt.plot(y,bottomIntersection,'*',color='y',markersize=25)
 
     #Get edge points in order
     normBox = ((box-np.amin(box))/np.amax(box))
@@ -289,6 +287,7 @@ def GetSebLength(Image,count):
                                 orderedEdgePoints = orderedEdgePoints + [[width-x,y]]
                                 break
         orderedEdgePoints= orderedEdgePoints[::-1]
+
     #Remove duplicates
     newOEPoints = []
     for i in range(len(orderedEdgePoints)):
@@ -298,39 +297,19 @@ def GetSebLength(Image,count):
     orderedXs = [orderedEdgePoints[i][0] for i in range(len(orderedEdgePoints))]
     orderedYs = [orderedEdgePoints[i][1] for i in range(len(orderedEdgePoints))]
 
-    #plt.clf()
-    #plt.imshow(edgeImage,interpolation='None')
-    #plt.scatter(orderedYs,orderedXs,c=np.arange(len(orderedXs)))
-    #plt.show()
-    #plt.clf()
-
     #Find mid index
     midPoint = np.argmin(np.abs(np.asarray(orderedYs)-height/2.0))
 
     #Run around cell from mid index calcing curvature
     curveLength = 10
     curvatures = []
-    plt.ion()
     for i in range(midPoint,len(orderedEdgePoints)+midPoint):
-        plt.imshow(edgeImage,interpolation='None')
-        plt.plot(orderedYs[i-curveLength:(i+curveLength)%len(orderedEdgePoints)+1],
-                orderedXs[i-curveLength:(i+curveLength)%len(orderedEdgePoints)+1],
-                'o-')
         x1 = orderedXs[(i-curveLength)%len(orderedEdgePoints)]
         x2 = orderedXs[(i+curveLength)%len(orderedEdgePoints)]
         y1 = orderedYs[(i-curveLength)%len(orderedEdgePoints)   ]
         y2 = orderedYs[(i+curveLength)%len(orderedEdgePoints)]
         dist = ( (x2-x1)**2 + (y2-y1)**2 )**0.5
-        #dist = abs(x2-x1) + abs(y2-y1)
         curvatures.append(dist)
-        #plt.title(dist)
-        #plt.pause(0.0001)
-        #plt.clf()
-
-    #clear up figure
-    plt.ioff()
-    plt.close()
-    plt.clf()
 
     #Mark polls
     leftData = curvatures[0:len(curvatures)//2]
@@ -338,7 +317,7 @@ def GetSebLength(Image,count):
     rightData = curvatures[len(curvatures)//2:]
     rightPole = np.argmin(rightData)
 
-    #Smooth with ft
+    #Smooth with fft
     w = scipy.fftpack.rfft(curvatures)
     spectrum = w**2
     cutoff_idx = spectrum < (spectrum.max()/50000)
@@ -353,16 +332,71 @@ def GetSebLength(Image,count):
     BackBone[orderedXs[leftPole2+midPoint] , orderedYs[leftPole2+midPoint]] = 1
     BackBone[orderedXs[(rightPole2+midPoint+len(curvatures)//2)%len(orderedXs)],
             orderedYs[(rightPole2+midPoint+len(curvatures)//2)%len(orderedYs)]]=1
-    newImage,ydata,xdata,zs= FitSkeleton(np.transpose(BackBone))
-    plt.ion()
-    plt.imshow(normBox,interpolation='None')
-    plt.plot(ydata,xdata)
-    plt.title(count)
-    plt.pause(0.01)
-    plt.clf()
+    newImage,ydata,xdata,zs= FitSkeleton(np.transpose(BackBone),2)
 
+    #Find points of intersection between line and segmented reigon
+    P1 = -1
+    P2 = -1
+    for x in range(height):
+        y = int(round(ComputePoly(x,zs)))
+        if y >= width:
+            y = width -1
+        value = normBox[y,x]
+        if P1 == -1 and value == 1:
+            P1 = [y,x]
+        if value ==1:
+            P2 = [y,x]
+    length = 0
+    for x in range(P1[1],P2[1]):
+        length += ( (x+1 - x)**2 + ( ComputePoly(x+1,zs)-
+                ComputePoly(x,zs) )**2)**0.5
 
+    #compute mid points to get width
+    midx = (P1[1]+P2[1])/2
+    midXs = [i for i in range(midx-10,midx+10)]
+    midYs = [ComputePoly(i,zs) for i in midXs]
+    plt.plot(midXs,midYs,'*')
 
+    for x,y in zip(midXs,midYs):
+        #Calculate 2 points on tangent line
+        m1 = 2*zs[0]*x + zs[1]
+        c1 =y - x*(2*zs[0]*x + zs[1])
+        Point1 = [x,y]
+
+        #Transfrom P2 coords to tangent Point
+        theta = np.pi/2
+        Point2 = [0-x,c1-y]
+        #Rotate
+        newX = Point2[0]*np.cos(theta) - Point2[1]*np.sin(theta)
+        newY = Point2[0]*np.sin(theta) + Point2[1]*np.cos(theta)
+        newPoint2 = [newX+x,newY+y]
+        m2 = (newPoint2[1] - Point1[1])/(newPoint2[0]-Point1[0])
+        c2 = newPoint2[1] - newPoint2[0]*(m2)
+        P1 = -1
+        P2 = -1
+        widths = []
+        for runy in range(width):
+            runx = (runy-c2)/m2
+            if round(runx)>= height or runx < 0:
+                runx = height-1
+                value = -1
+            else:
+                value = normBox[runy,int(round(runx))]
+            if P1 ==-1 and value>0:
+                P1 = [runx,runy]
+            if value>0:
+                P2 = [runx,runy]
+        width1 = ( (P2[0]-P1[0])**2 + (P2[1]-P1[1])**2 )**0.5
+        widths.append(width1)
+    meanWidth = np.mean(widths)
+    #plt.title("{} / {}".format(length,meanWidth))
+    #plt.ion()
+    #plt.imshow(normBox,interpolation='None')
+    #plt.plot(ydata,xdata)
+    #plt.pause(5)
+    #plt.show()
+    #plt.clf()
+    return length,meanWidth
 
 def GetArea(Image):
     '''
