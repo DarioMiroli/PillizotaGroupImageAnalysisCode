@@ -1,6 +1,10 @@
 from pyzota_image_toolbox import imageTools as IT
 import sys
 import matplotlib.pyplot as plt
+#For input directory
+from  Tkinter import *
+import Tkinter, Tkconstants, tkFileDialog
+root = Tk()
 #Import Machine learning stuff
 pathToMachineLearning = ("/home/s1033855/OperationLeadPelican/"
         "MachineLearningTest/KerasTests/ImageSegmentationWithKeras/"
@@ -11,14 +15,15 @@ from MachineSegmenter import MachineSegmenter
 #**************************** Enter input file here ***************************#
 dataStore = ("/run/user/1001/gvfs/smb-share:server=csce.datastore.ed.ac.uk,shar"
         "e=csce/biology/groups/pilizota/")
-pathToData = ("Dario/Data/GrowthAtHigherOsmolarities/5_12_17/600mM_NaCl_M63"
-        "_Glu_CAA_OD_/Slide1Compiled/")
-outputFolder =  pathToData.split("/")[-3]
-outputFile = "CellData.pickle"
+pathToData =("Dario/Data/GrowthAtHigherOsmolarities/")
+pathToData = dataStore+pathToData
+root.directory = tkFileDialog.askdirectory(initialdir = pathToData)
+pathToData = root.directory+"/"
+outputFolder =  pathToData.split("/")[-3]+"_"+pathToData.split("/")[-4]
+outputFile = "200mM_NaCl_Slide1Day2.pickle"
 #**************************** Enter input file here ***************************#
 
 #Check input output folders with user
-pathToData = dataStore+pathToData
 outputFolderPath = "Analysis/" + outputFolder
 print("Reading from:{}\nWriting to: {}\n".format(pathToData,outputFolderPath))
 ok = raw_input("Is this ok (y/n)")

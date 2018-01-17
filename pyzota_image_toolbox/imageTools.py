@@ -220,7 +220,7 @@ def BboxImages(Image,mask):
         bBoxedMasks.append(mask[x1-10:x2+2,y1-10:y2+10])
     return bBoxedImages, bBoxedMasks
 
-def GetLengthAndWidth(Image,count):
+def GetLengthAndWidth(Image):
     #Tidy up iamge for analysis. Clear it flip it if necessary
     cleared = ClearBorders(Image)
     cleared = cleared-np.amin(cleared)
@@ -231,6 +231,7 @@ def GetLengthAndWidth(Image,count):
     if width > height:
         box = np.swapaxes(box,0,1)
         width , height = box.shape
+
 
     #Compute all points on top and bottom of cell
     topPoints= []
@@ -334,6 +335,7 @@ def GetLengthAndWidth(Image,count):
             orderedYs[(rightPole2+midPoint+len(curvatures)//2)%len(orderedYs)]]=1
     newImage,ydata,xdata,zs= FitSkeleton(np.transpose(BackBone),2)
 
+
     #Find points of intersection between line and segmented reigon
     P1 = -1
     P2 = -1
@@ -355,7 +357,7 @@ def GetLengthAndWidth(Image,count):
     midx = (P1[1]+P2[1])/2
     midXs = [i for i in range(midx-10,midx+10)]
     midYs = [ComputePoly(i,zs) for i in midXs]
-    plt.plot(midXs,midYs,'*')
+    #plt.plot(midXs,midYs,'*')
 
     for x,y in zip(midXs,midYs):
         #Calculate 2 points on tangent line
@@ -377,7 +379,9 @@ def GetLengthAndWidth(Image,count):
         widths = []
         for runy in range(width):
             runx = (runy-c2)/m2
-            if round(runx)>= height or runx < 0:
+            if np.isnan(runx):
+                runx = midYs[runy]
+            if round(runx) >= height or runx < 0:
                 runx = height-1
                 value = -1
             else:
