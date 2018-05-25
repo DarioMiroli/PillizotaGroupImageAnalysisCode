@@ -36,6 +36,8 @@ dataDic2 = {"Names":copy.deepcopy(array),"Areas":copy.deepcopy(array),
 
 for n,fName in enumerate(fileNamesPlusPath):
     f = open(fName,'r')
+    dataDic["Names"].append(fName)
+    dataDic2["Names"][n]=fileNames[n].split(".")[0]
     endOfFile = False
     while not endOfFile:
         try:
@@ -69,10 +71,10 @@ plt.ioff()
 plt.clf()
 #Plot Histograms
 Props = ["Areas","Lengths","Widths"]
-histBins = [np.linspace(0,2000,50),np.linspace(0,100,50),np.linspace(0,25,50)]
+histBins = [np.linspace(0,2000,25),np.linspace(0,100,25),np.linspace(0,25,25)]
+histArray = []
 for z,prop in enumerate(Props):
-    for n in range(len(conditions)):
-        plt.hist(dataDic[prop][n],bins=histBins[z],label=conditions[n],alpha=0.5)
+    plt.hist(dataDic[prop],bins=histBins[z],stacked=True,label=conditions,alpha=0.5,normed=1)
     plt.legend()
     plt.title(prop)
     plt.xlabel(prop)

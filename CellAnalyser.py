@@ -19,8 +19,9 @@ pathToData =("Dario/Data/GrowthAtHigherOsmolarities/")
 pathToData = dataStore+pathToData
 root.directory = tkFileDialog.askdirectory(initialdir = pathToData)
 pathToData = root.directory+"/"
-outputFolder =  pathToData.split("/")[-3]+"_"+pathToData.split("/")[-4]
-outputFile = "200mM_NaCl_Slide1Day2.pickle"
+#outputFolder =  pathToData.split("/")[-3]+"_"+pathToData.split("/")[-4]
+outputFolder =  raw_input("Please enter Output folder Name?\n")+"/"
+outputFile = raw_input("Please enter Ouput file Name")+".pickle"
 #**************************** Enter input file here ***************************#
 
 #Check input output folders with user
