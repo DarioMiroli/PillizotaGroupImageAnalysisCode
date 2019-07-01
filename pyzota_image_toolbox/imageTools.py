@@ -220,7 +220,7 @@ def BboxImages(Image,mask):
         bBoxedMasks.append(mask[x1-10:x2+2,y1-10:y2+10])
     return bBoxedImages, bBoxedMasks
 
-def GetLengthAndWidth(Image):
+def GetLengthAndWidth(Image,rawImage):
     #Tidy up iamge for analysis. Clear it flip it if necessary
     cleared = ClearBorders(Image)
     cleared = cleared-np.amin(cleared)
@@ -231,6 +231,8 @@ def GetLengthAndWidth(Image):
     if width > height:
         box = np.swapaxes(box,0,1)
         width , height = box.shape
+        rawImage = np.swapaxes(rawImage,0,1)
+        Image = np.swapaxes(Image,0,1)
 
 
     #Compute all points on top and bottom of cell
@@ -358,7 +360,8 @@ def GetLengthAndWidth(Image):
     midXs = [i for i in range(midx-10,midx+10)]
     midYs = [ComputePoly(i,zs) for i in midXs]
     #plt.plot(midXs,midYs,'*')
-
+    P1s = []
+    P2s = []
     for x,y in zip(midXs,midYs):
         #Calculate 2 points on tangent line
         m1 = 2*zs[0]*x + zs[1]
@@ -377,6 +380,7 @@ def GetLengthAndWidth(Image):
         P1 = -1
         P2 = -1
         widths = []
+
         for runy in range(width):
             runx = (runy-c2)/m2
             if np.isnan(runx):
@@ -392,15 +396,67 @@ def GetLengthAndWidth(Image):
                 P2 = [runx,runy]
         width1 = ( (P2[0]-P1[0])**2 + (P2[1]-P1[1])**2 )**0.5
         widths.append(width1)
+        P1s.append(P1)
+        P2s.append(P2)
+
     meanWidth = np.mean(widths)
-    #plt.title("{} / {}".format(length,meanWidth))
-    #plt.ion()
-    #plt.imshow(normBox,interpolation='None')
-    #plt.plot(ydata,xdata)
-    #plt.pause(5)
+
+    #Display whole process for thesis
+    fig, ax = plt.subplots(nrows=1,ncols=3,figsize=(18,6))
+    #Work out how to pad for plotting length and width lines and poles
+    padRow = 0
+    for row in range((np.shape(Image)[0])):
+        if np.sum(Image,axis=0)[row] > np.shape(Image)[0]:
+            padRow = row
+            break
+        else:
+            padRow = row
+    padCol = 0
+    for col in range((np.shape(Image)[1])):
+        if np.sum(Image,axis=1)[col] > np.shape(Image)[1]:
+            padCol = col
+            break
+        else:
+            padCol = col
+    ax[0].set_title("Raw / segmented ")
+    ax[0].imshow(rawImage,cmap="gray")
+    ax[0].imshow(Image,cmap="jet",alpha=0.25)
+    ax[0].xaxis.set_ticklabels([])
+    ax[0].yaxis.set_ticklabels([])
+    ax[1].set_title("Length: {0:.1f} px".format(length))
+    ax[1].plot(ydata+padRow,xdata+padCol)
+    ax[1].plot(orderedYs[midPoint+leftPole2]+padRow,orderedXs[midPoint+leftPole2]+padCol,'*',markersize=10)
+    ax[1].plot(orderedYs[(rightPole2+midPoint+len(curvatures)//2)%len(orderedXs)]+padRow,orderedXs[(rightPole2+midPoint+len(curvatures)//2)%len(orderedYs)]+padCol,'*',markersize=10)
+    ax[1].imshow(Image,interpolation='None',cmap="gray")
+    ax[1].xaxis.set_ticklabels([])
+    ax[1].yaxis.set_ticklabels([])
+
+
+    colors = ["green","navy"]
+    for i in range(len(P1s)):
+        xs = [   P1s[i][0],P2s[i][0]   ]
+        ys = [   P1s[i][1],P2s[i][1]   ]
+        if i%2 == 0:
+            color = colors[0]
+        else:
+            color = colors[1]
+        ax[2].plot(np.asarray(xs)+padRow,np.asarray(ys)+padCol,color=color    )
+    ax[2].imshow(Image,interpolation='None',cmap="gray")
+    ax[2].set_title("Mean width: {0:.1f} px".format(meanWidth))
+    ax[2].xaxis.set_ticklabels([])
+    ax[2].yaxis.set_ticklabels([])
+    fig.tight_layout()
+    try:
+        GetLengthAndWidth.count = GetLengthAndWidth.count +1
+    except:
+        GetLengthAndWidth.count = 0
+
+    plt.savefig("./ThesisGraphs/ExampleCells/Example{0}.png".format(GetLengthAndWidth.count))
     #plt.show()
-    #plt.clf()
     return length,meanWidth
+
+    #plt.show()
+
 
 def GetArea(Image):
     '''

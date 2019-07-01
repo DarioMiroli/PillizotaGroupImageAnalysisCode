@@ -47,7 +47,7 @@ for n,fName in enumerate(fileNamesPlusPath):
                 mask = IT.ClearBorders(mask)
                 area = IT.GetArea(mask)
                 if area > areaCutOff:
-                    length,width = IT.GetLengthAndWidth(mask)
+                    length,width = IT.GetLengthAndWidth(mask,d["RawImage"])
                     volume = ((4/3.0)*np.pi*(width/2.0)**3) + (width*(length-width))
                     condition = getCondition(fileNames[n])
                     index = conditions.index(condition)
@@ -73,18 +73,18 @@ for n,fName in enumerate(fileNamesPlusPath):
 plt.ioff()
 plt.clf()
 #Plot Histograms
-Props = ["Areas","Lengths","Widths","Volumes"]
-histBins = [np.linspace(0,2000,50),np.linspace(0,100,50),np.linspace(0,25,50),np.linspace(0,4000,50)]
-histArray = []
-for z,prop in enumerate(Props):
-    print(len(dataDic[prop]))
-    plt.hist([dataDic[prop][1],dataDic[prop][5]],histtype= "step",bins=histBins[z],stacked=False,label=[conditions[1],conditions[5]],alpha=0.9,normed=False)
-    plt.legend()
-    plt.title(prop)
-    plt.xlabel(prop)
-    plt.ylabel("Frequency")
-    plt.savefig("./Analysis/Graphs/"+prop+"Hist")
-    plt.show()
+#Props = ["Areas","Lengths","Widths","Volumes"]
+#histBins = [np.linspace(0,2000,50),np.linspace(0,100,50),np.linspace(0,25,50),np.linspace(0,4000,50)]
+#histArray = []
+#for z,prop in enumerate(Props):
+#    print(len(dataDic[prop]))
+#    plt.hist([dataDic[prop][1],dataDic[prop][5]],histtype= "step",bins=histBins[z],stacked=False,label=[conditions[1],conditions[5]],alpha=0.9,normed=False)
+#    plt.legend()
+#    plt.title(prop)
+#    plt.xlabel(prop)
+#    plt.ylabel("Frequency")
+#    plt.savefig("./Analysis/Graphs/"+prop+"Hist")
+#    plt.show()
 
 #Plot Box Plots
 for prop in Props:
