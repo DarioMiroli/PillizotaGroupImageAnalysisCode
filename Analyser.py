@@ -25,12 +25,12 @@ print("Conditions={}".format(conditions))
 array = [[] for i in range(len(conditions))]
 #Conditions grouped together
 dataDic = {"Names":copy.deepcopy(array),"Areas":copy.deepcopy(array),
-        "Widths":copy.deepcopy(array),"Lengths":copy.deepcopy(array)}
+        "Widths":copy.deepcopy(array),"Lengths":copy.deepcopy(array),"Volumes":copy.deepcopy(array)}
 
 array = [[] for i in range(numberOfFiles)]
 #Each slide individually
 dataDic2 = {"Names":copy.deepcopy(array),"Areas":copy.deepcopy(array),
-        "Widths":copy.deepcopy(array),"Lengths":copy.deepcopy(array)}
+        "Widths":copy.deepcopy(array),"Lengths":copy.deepcopy(array),"Volumes":copy.deepcopy(array)}
 
 
 
@@ -48,14 +48,18 @@ for n,fName in enumerate(fileNamesPlusPath):
                 area = IT.GetArea(mask)
                 if area > areaCutOff:
                     length,width = IT.GetLengthAndWidth(mask)
+                    volume = ((4/3.0)*np.pi*(width/2.0)**3) + (width*(length-width))
                     condition = getCondition(fileNames[n])
                     index = conditions.index(condition)
                     dataDic["Areas"][index].append(area)
                     dataDic["Lengths"][index].append(length)
                     dataDic["Widths"][index].append(width)
+                    dataDic["Volumes"][index].append(volume)
+
                     dataDic2["Areas"][n].append(area)
                     dataDic2["Lengths"][n].append(length)
                     dataDic2["Widths"][n].append(width)
+                    dataDic2["Volumes"][n].append(volume)
         except EOFError:
             print("End of File")
             endOfFile = True
@@ -66,15 +70,15 @@ for n,fName in enumerate(fileNamesPlusPath):
 
 #****************************************** PLOTTING ***************************
 
-
 plt.ioff()
 plt.clf()
 #Plot Histograms
-Props = ["Areas","Lengths","Widths"]
-histBins = [np.linspace(0,2000,25),np.linspace(0,100,25),np.linspace(0,25,25)]
+Props = ["Areas","Lengths","Widths","Volumes"]
+histBins = [np.linspace(0,2000,50),np.linspace(0,100,50),np.linspace(0,25,50),np.linspace(0,4000,50)]
 histArray = []
 for z,prop in enumerate(Props):
-    plt.hist(dataDic[prop],bins=histBins[z],stacked=True,label=conditions,alpha=0.5,normed=1)
+    print(len(dataDic[prop]))
+    plt.hist([dataDic[prop][1],dataDic[prop][5]],histtype= "step",bins=histBins[z],stacked=False,label=[conditions[1],conditions[5]],alpha=0.9,normed=False)
     plt.legend()
     plt.title(prop)
     plt.xlabel(prop)
