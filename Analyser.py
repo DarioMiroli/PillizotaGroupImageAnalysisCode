@@ -10,7 +10,8 @@ def getCondition(fName):
     return array[0]+array[1]
 
 
-dataFolder = "./Analysis/AllData/"
+#dataFolder = "./Analysis/AllData/"
+dataFolder = "./Analysis/GrowthLaw"
 fileNames = sorted(IT.GetFileNamesFromFolder(dataFolder))
 fileNamesPlusPath = sorted(IT.GetFileNamesFromFolder(dataFolder,False))
 areaCutOff = 10
@@ -20,6 +21,7 @@ numberOfFiles = len(fileNames)
 print("Number of files = {}".format(numberOfFiles))
 conditions =sorted(list(set([ getCondition(i) for i in fileNames ])))
 print("Conditions={}".format(conditions))
+
 
 
 array = [[] for i in range(len(conditions))]
@@ -86,19 +88,23 @@ Props = ["Areas","Lengths","Widths","Volumes"]
 #    plt.savefig("./Analysis/Graphs/"+prop+"Hist")
 #    plt.show()
 
+plt.close()
+
 #Plot Box Plots
 for prop in Props:
     data = []
     fig = plt.figure()
     ax = fig.add_subplot(111)
     for n in range(len(conditions)):
-        data.append(np.asarray(dataDic[prop][n])*0.05)
+        data.append(np.asarray(dataDic[prop][n])*0.051)
         ax.annotate('n={}'.format(len(data[n])), xy=(n+1, np.median(data[n])),
                 xytext=(n+1, np.median(data[n])), ha='center')
     ax.boxplot(data)
+    
     ax.set_xticklabels(conditions)
     plt.title(prop)
     ax.grid(linestyle='--', linewidth=1,axis="y")
+    ax.set_xticklabels(ax.get_xticklabels(),rotation=90)
     plt.savefig("./Analysis/Graphs/"+prop)
     plt.show()
 
@@ -111,6 +117,8 @@ for prop in Props:
         data.append(np.asarray(dataDic2[prop][n])*0.05)
         ax.annotate('n={}'.format(len(data[n])), xy=(n+1, np.median(data[n])),
                 xytext=(n+1, np.median(data[n])), ha='center')
+        ax.set_xticklabels(ax.get_xticklabels(),rotation=90)
+
     ax.boxplot(data)
     ax.set_xticklabels(dataDic2["Names"])
     plt.title(prop)
