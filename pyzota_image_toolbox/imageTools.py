@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.colors import LogNorm
 from matplotlib.ticker import MultipleLocator
+import matplotlib.cm as cm
 
 from skimage.filters import *
 from skimage.morphology import *
@@ -220,7 +221,7 @@ def BboxImages(Image,mask):
         bBoxedMasks.append(mask[x1-10:x2+2,y1-10:y2+10])
     return bBoxedImages, bBoxedMasks
 
-def GetLengthAndWidth(Image,rawImage):
+def GetLengthAndWidth(Image,rawImage,debug=False):
     #Tidy up iamge for analysis. Clear it flip it if necessary
     cleared = ClearBorders(Image)
     cleared = cleared-np.amin(cleared)
@@ -400,59 +401,158 @@ def GetLengthAndWidth(Image,rawImage):
         P2s.append(P2)
 
     meanWidth = np.mean(widths)
+    if debug:
+        #Display whole process for thesis
+        fig, ax = plt.subplots(nrows=1,ncols=3,figsize=(18,6))
+        #Work out how to pad for plotting length and width lines and poles
+        padRow = 0
+        for row in range((np.shape(Image)[0])):
+            if np.sum(Image,axis=0)[row] > np.shape(Image)[0]:
+                padRow = row
+                break
+            else:
+                padRow = row
+        padCol = 0
+        for col in range((np.shape(Image)[1])):
+            if np.sum(Image,axis=1)[col] > np.shape(Image)[1]:
+                padCol = col
+                break
+            else:
+                padCol = col
+        ax[0].set_title("Raw / segmented ",fontsize=30,fontweight="bold")
+        ax[0].imshow(rawImage,cmap="gray")
+        ax[0].imshow(Image,cmap="jet",alpha=0.25)
+        ax[0].xaxis.set_ticklabels([])
+        ax[0].yaxis.set_ticklabels([])
+        ax[1].set_title("Length: {0:.1f} px".format(length),fontsize=30,fontweight="bold")
+        ax[1].plot(ydata+padRow,xdata+padCol)
+        ax[1].plot(orderedYs[midPoint+leftPole2]+padRow,orderedXs[midPoint+leftPole2]+padCol,'*',markersize=10)
+        ax[1].plot(orderedYs[(rightPole2+midPoint+len(curvatures)//2)%len(orderedXs)]+padRow,orderedXs[(rightPole2+midPoint+len(curvatures)//2)%len(orderedYs)]+padCol,'*',markersize=10)
+        ax[1].imshow(Image,interpolation='None',cmap="gray")
+        ax[1].xaxis.set_ticklabels([])
+        ax[1].yaxis.set_ticklabels([])
 
-    #Display whole process for thesis
-    fig, ax = plt.subplots(nrows=1,ncols=3,figsize=(18,6))
-    #Work out how to pad for plotting length and width lines and poles
-    padRow = 0
-    for row in range((np.shape(Image)[0])):
-        if np.sum(Image,axis=0)[row] > np.shape(Image)[0]:
-            padRow = row
-            break
-        else:
-            padRow = row
-    padCol = 0
-    for col in range((np.shape(Image)[1])):
-        if np.sum(Image,axis=1)[col] > np.shape(Image)[1]:
-            padCol = col
-            break
-        else:
-            padCol = col
-    ax[0].set_title("Raw / segmented ")
-    ax[0].imshow(rawImage,cmap="gray")
-    ax[0].imshow(Image,cmap="jet",alpha=0.25)
-    ax[0].xaxis.set_ticklabels([])
-    ax[0].yaxis.set_ticklabels([])
-    ax[1].set_title("Length: {0:.1f} px".format(length))
-    ax[1].plot(ydata+padRow,xdata+padCol)
-    ax[1].plot(orderedYs[midPoint+leftPole2]+padRow,orderedXs[midPoint+leftPole2]+padCol,'*',markersize=10)
-    ax[1].plot(orderedYs[(rightPole2+midPoint+len(curvatures)//2)%len(orderedXs)]+padRow,orderedXs[(rightPole2+midPoint+len(curvatures)//2)%len(orderedYs)]+padCol,'*',markersize=10)
-    ax[1].imshow(Image,interpolation='None',cmap="gray")
-    ax[1].xaxis.set_ticklabels([])
-    ax[1].yaxis.set_ticklabels([])
+
+        colors = ["green","navy"]
+        for i in range(len(P1s)):
+            xs = [   P1s[i][0],P2s[i][0]   ]
+            ys = [   P1s[i][1],P2s[i][1]   ]
+            if i%2 == 0:
+                color = colors[0]
+            else:
+                color = colors[1]
+            ax[2].plot(np.asarray(xs)+padRow,np.asarray(ys)+padCol,color=color    )
+        ax[2].imshow(Image,interpolation='None',cmap="gray")
+        ax[2].set_title("Mean width: {0:.1f} px".format(meanWidth),fontsize=30,fontweight="bold")
+        ax[2].xaxis.set_ticklabels([])
+        ax[2].yaxis.set_ticklabels([])
+        fig.tight_layout()
+        try:
+            GetLengthAndWidth.count = GetLengthAndWidth.count +1
+        except:
+            GetLengthAndWidth.count = 0
+
+        #plt.savefig("./ThesisGraphs/ExampleCells/Example{0}.png".format(GetLengthAndWidth.count))
+        #plt.show()
+        plt.clf()
+        plt.close()
 
 
-    colors = ["green","navy"]
-    for i in range(len(P1s)):
-        xs = [   P1s[i][0],P2s[i][0]   ]
-        ys = [   P1s[i][1],P2s[i][1]   ]
-        if i%2 == 0:
-            color = colors[0]
-        else:
-            color = colors[1]
-        ax[2].plot(np.asarray(xs)+padRow,np.asarray(ys)+padCol,color=color    )
-    ax[2].imshow(Image,interpolation='None',cmap="gray")
-    ax[2].set_title("Mean width: {0:.1f} px".format(meanWidth))
-    ax[2].xaxis.set_ticklabels([])
-    ax[2].yaxis.set_ticklabels([])
-    fig.tight_layout()
-    try:
-        GetLengthAndWidth.count = GetLengthAndWidth.count +1
-    except:
-        GetLengthAndWidth.count = 0
+        #**************** ALL steps PLOT  *****************************************#
+        #Example showing all stages plot
+        fig, ax = plt.subplots(nrows=3,ncols=3,figsize=(12,12))
+        #Set titles
+        fontSize = 30
+        ax[0][0].set_title("(A) Raw",fontsize=fontSize,fontweight="bold")
+        ax[0][1].set_title("(B) Segmented",fontsize=fontSize,fontweight="bold")
+        ax[0][2].set_title("(C) Edge points",fontsize=fontSize,fontweight="bold")
+        ax[1][0].set_title("(D) Curvature",fontsize=fontSize,fontweight="bold")
+        ax[1][1].set_title("(E) Curvature trace",fontsize=fontSize,fontweight="bold")
+        ax[1][2].set_title("(F) Poles",fontsize=fontSize,fontweight="bold")
+        ax[2][0].set_title("(G) Backbone",fontsize=fontSize,fontweight="bold")
+        ax[2][1].set_title("(H) Length",fontsize=fontSize,fontweight="bold")
+        ax[2][2].set_title("(I) Width",fontsize=fontSize,fontweight="bold")
 
-    plt.savefig("./ThesisGraphs/ExampleCells/Example{0}.png".format(GetLengthAndWidth.count))
-    #plt.show()
+
+
+        #Raw iamge
+        newRaw = rawImage[0:np.shape(Image)[0],0:np.shape(Image)[1]]
+        ax[0][0].imshow(newRaw,cmap="gray",interpolation="None")
+        #Segmented
+        ax[0][1].imshow(Image,cmap="gray",interpolation="None")
+        #Ordered x and y points
+        ax[0][2].imshow(Image,cmap="gray",interpolation="None")
+        edgePixels =  np.zeros_like(Image)
+        for i in range(len(orderedXs)):
+            edgePixels[orderedXs[i]+padRow][orderedYs[i]+padCol] = (i +20)
+
+        ax[0][2].imshow(edgePixels,cmap="inferno",interpolation="None")
+
+        #Curvature measuring stick
+        for i in (20,50,80,0):
+            xs = orderedXs[i:i+10]
+            ys = orderedYs[i:i+10]
+            ax[1][0].plot(np.asarray(ys)+padCol,np.asarray(xs)+padRow,'-',markersize=10,linewidth=5)
+        ax[1][0].imshow(edgePixels,cmap="inferno",interpolation="None")
+        #curvature plot
+        colors = cm.inferno(np.linspace(0.2, 1, len(curvatures)))
+        ax[1][1].scatter([i for i in range(len(curvatures))],curvatures,label="Raw",color=colors)
+        ax[1][1].plot(y2,linewidth=3,label="Smoothed")
+        ax[1][1].set_xlabel("Edge index",fontsize=18,fontweight="bold")
+        ax[1][1].set_ylabel("Segment length(px)",fontsize=18,fontweight="bold")
+        ax[1][1].legend(loc="upper center",ncol=2)
+        ax[1][1].legend(bbox_to_anchor=(0., -0.02, 1., .102), loc='lower left',
+               ncol=2, mode="expand", borderaxespad=0.)
+        ax[1][1].patch.set_facecolor('black')
+        asp = (np.diff(ax[1][1].get_xlim())[0]) / (np.diff(ax[1][1].get_ylim())[0])
+        asp /= np.abs(np.diff(ax[0][0].get_xlim())[0] / np.diff(ax[0][0].get_ylim())[0])
+        ax[1][1].set_aspect(6.5)
+        ax[1][1].set_xlim(0,len(curvatures))
+        #Mark poles
+        ax[1][2].plot(orderedYs[midPoint+leftPole2]+padRow,orderedXs[midPoint+leftPole2]+padCol,'o--',markersize=10)
+        ax[1][2].plot(orderedYs[(rightPole2+midPoint+len(curvatures)//2)%len(orderedXs)]+padRow,orderedXs[(rightPole2+midPoint+len(curvatures)//2)%len(orderedXs)]+padCol,'o--',markersize=10)
+        ax[1][2].imshow(edgePixels,cmap="inferno",interpolation="None")
+        #Show backbone
+        newBack = np.zeros_like(Image)
+        for row in range(np.shape(BackBone)[0]):
+            for col in range(np.shape(BackBone)[1]):
+                if BackBone[row][col] > 0:
+                    newBack[row+padRow][col+padCol] = 1
+
+        #ax[2][0].plot(orderedYs[midPoint+leftPole2]+padRow,orderedXs[midPoint+leftPole2]+padCol,'o--',markersize=10)
+        #ax[2][0].plot(orderedYs[(rightPole2+midPoint+len(curvatures)//2)%len(orderedXs)]+padRow,orderedXs[(rightPole2+midPoint+len(curvatures)//2)%len(orderedXs)]+padCol,'o--',markersize=10)
+        ax[2][0].imshow(newBack,cmap="gray",interpolation="None",alpha= 0.9)
+        ax[2][0].imshow(edgePixels,cmap="inferno",interpolation="None",alpha= 0.1)
+
+        #Show length
+        ax[2][1].plot(orderedYs[midPoint+leftPole2]+padRow,orderedXs[midPoint+leftPole2]+padCol,'o--',markersize=10)
+        ax[2][1].plot(orderedYs[(rightPole2+midPoint+len(curvatures)//2)%len(orderedXs)]+padRow,orderedXs[(rightPole2+midPoint+len(curvatures)//2)%len(orderedXs)]+padCol,'o--',markersize=10)
+        ax[2][1].plot(ydata+padRow,xdata+padCol)
+        ax[2][1].imshow(Image,cmap="gray",interpolation="None",alpha= 0.5)
+        ax[2][1].imshow(edgePixels,cmap="inferno",interpolation="None",alpha= 0.5)
+        #Show width
+        ax[2][2].plot(orderedYs[midPoint+leftPole2]+padRow,orderedXs[midPoint+leftPole2]+padCol,'o--',markersize=10)
+        ax[2][2].plot(orderedYs[(rightPole2+midPoint+len(curvatures)//2)%len(orderedXs)]+padRow,orderedXs[(rightPole2+midPoint+len(curvatures)//2)%len(orderedXs)]+padCol,'o--',markersize=10)
+        ax[2][2].plot(ydata+padRow,xdata+padCol)
+
+        colors = ["green","navy"]
+        for i in range(len(P1s)):
+            xs = [   P1s[i][0],P2s[i][0]   ]
+            ys = [   P1s[i][1],P2s[i][1]   ]
+            if i%2 == 0:
+                color = colors[0]
+            else:
+                color = colors[1]
+            ax[2][2].plot(np.asarray(xs)+padRow,np.asarray(ys)+padCol,color=color )
+        ax[2][2].imshow(Image,cmap="gray",interpolation="None",alpha= 0.5)
+        ax[2][2].imshow(edgePixels,cmap="inferno",interpolation="None",alpha= 0.5)
+        fig.tight_layout()
+        plt.clf()
+        plt.close()
+        #plt.show()
+        #exit()
+
+
     return length,meanWidth
 
     #plt.show()

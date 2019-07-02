@@ -73,7 +73,7 @@ for n,fName in enumerate(fileNamesPlusPath):
 plt.ioff()
 plt.clf()
 #Plot Histograms
-#Props = ["Areas","Lengths","Widths","Volumes"]
+Props = ["Areas","Lengths","Widths","Volumes"]
 #histBins = [np.linspace(0,2000,50),np.linspace(0,100,50),np.linspace(0,25,50),np.linspace(0,4000,50)]
 #histArray = []
 #for z,prop in enumerate(Props):
