@@ -4,6 +4,8 @@ import pickle
 import matplotlib.pyplot as plt
 import numpy as np
 import copy
+from scipy import stats
+import matplotlib
 
 def getCondition(fName):
     array = fName.split(".")[0].split("_")[0:2]
@@ -50,7 +52,7 @@ for n,fName in enumerate(fileNamesPlusPath):
                 area = IT.GetArea(mask)
                 if area > areaCutOff:
                     length,width = IT.GetLengthAndWidth(mask,d["RawImage"])
-                    volume = ((4/3.0)*np.pi*(width/2.0)**3) + (width*(length-width))
+                    volume = ((4/3.0)*np.pi*((width/2.0)**3)) + (np.pi*((width/2)**2)*(length-width))
                     condition = getCondition(fileNames[n])
                     index = conditions.index(condition)
                     dataDic["Areas"][index].append(area)
@@ -100,13 +102,13 @@ for prop in Props:
         ax.annotate('n={}'.format(len(data[n])), xy=(n+1, np.median(data[n])),
                 xytext=(n+1, np.median(data[n])), ha='center')
     ax.boxplot(data)
-    
+
     ax.set_xticklabels(conditions)
     plt.title(prop)
     ax.grid(linestyle='--', linewidth=1,axis="y")
     ax.set_xticklabels(ax.get_xticklabels(),rotation=90)
     plt.savefig("./Analysis/Graphs/"+prop)
-    plt.show()
+    #plt.show()
 
 #Plot Box Plots each slide individually
 for prop in Props:
@@ -124,4 +126,30 @@ for prop in Props:
     plt.title(prop)
     ax.grid(linestyle='--', linewidth=1,axis="y")
     plt.savefig("./Analysis/Graphs/All_"+prop)
-    plt.show()
+    #plt.show()
+
+prop = "Volumes"
+meanVolumes = []
+growthRates = [40,90,28]
+for n in range(len(conditions)):
+    meanVolume = np.mean(np.asarray(dataDic[prop][n]))*(0.051)**3
+    meanVolumes.append(meanVolume)
+plt.close("all")
+plt.clf()
+
+
+x = np.log(2)/(np.asarray(growthRates)/60.0)
+y = np.log(np.asarray(meanVolumes))
+slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+plt.plot(x,y,'o',markersize=10)
+plt.plot(x,x*slope+intercept,label="y = {0:.2f}x {1:.2f} \n $S = S_0e^{{ \gamma \lambda }} = {2:.2f}e^{{ {3:.2f}\lambda }}$".format(slope,intercept,np.exp(intercept),slope),linewidth=3)
+plt.plot([0,x[1]],[intercept,x[1]*slope + intercept],"--",linewidth=3,color="green")
+
+plt.legend(loc="lower center",fontsize="xx-large")
+plt.xlabel("Growth rate $\mathbf{\lambda = \\frac{ln(2)}{\\tau}}$ ($h^{-1}$)",fontsize=20,fontweight="bold")
+plt.ylabel("$\mathbf{ln}$(Mean cell volume)",fontsize=20,fontweight="bold")
+plt.xlim(0,1.05*max(x))
+plt.ylim(1.1*intercept,max(y)*1.1)
+plt.tight_layout()
+
+plt.show()
