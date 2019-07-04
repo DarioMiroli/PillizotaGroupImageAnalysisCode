@@ -6,7 +6,9 @@ import numpy as np
 import copy
 from scipy import stats
 import matplotlib
-
+from matplotlib import rc,rcParams
+rc('axes', linewidth=2)
+rc('font', weight='bold')
 def getCondition(fName):
     array = fName.split(".")[0].split("_")[0:2]
     return array[0]+array[1]
@@ -128,28 +130,74 @@ for prop in Props:
     plt.savefig("./Analysis/Graphs/All_"+prop)
     #plt.show()
 
-prop = "Volumes"
-meanVolumes = []
-growthRates = [40,90,28]
-for n in range(len(conditions)):
-    meanVolume = np.mean(np.asarray(dataDic[prop][n]))*(0.051)**3
-    meanVolumes.append(meanVolume)
+
 plt.close("all")
 plt.clf()
 
 
+
+#******** THESIS FIGURES *************
+prop = "Volumes"
+meanVolumes = []
+growthRates = [40,90,28]
+scaleFactors = 0.051
+volumes = []
+yErrors = []
+for n in range(len(conditions)):
+    volume = np.asarray(dataDic[prop][n])*((scaleFactors)**3)
+    volumes.append(volume)
+    meanVolume = np.mean(volume)
+    meanVolumes.append(meanVolume)
+    yErr = np.std(volume)
+    yErr = yErr/meanVolume
+    yErrors.append((yErr/np.sqrt(len(volume))))
+
+
+#************ GROWTH LAW **************
+#Bottom left size vs growth rate
+plt.close("all")
+fig, ax = plt.subplots(nrows=2,ncols=2,figsize=(13,9))
 x = np.log(2)/(np.asarray(growthRates)/60.0)
 y = np.log(np.asarray(meanVolumes))
 slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
-plt.plot(x,y,'o',markersize=10)
-plt.plot(x,x*slope+intercept,label="y = {0:.2f}x {1:.2f} \n $S = S_0e^{{ \gamma \lambda }} = {2:.2f}e^{{ {3:.2f}\lambda }}$".format(slope,intercept,np.exp(intercept),slope),linewidth=3)
-plt.plot([0,x[1]],[intercept,x[1]*slope + intercept],"--",linewidth=3,color="green")
+yPredict = x*slope+intercept
 
-plt.legend(loc="lower center",fontsize="xx-large")
-plt.xlabel("Growth rate $\mathbf{\lambda = \\frac{ln(2)}{\\tau}}$ ($h^{-1}$)",fontsize=20,fontweight="bold")
-plt.ylabel("$\mathbf{ln}$(Mean cell volume)",fontsize=20,fontweight="bold")
-plt.xlim(0,1.05*max(x))
-plt.ylim(1.1*intercept,max(y)*1.1)
-plt.tight_layout()
+ax[1][0].errorbar(x,y,yerr=yErrors,fmt='o',markersize=10,capsize=10,elinewidth=3,ecolor="k")
+ax[1][0].plot(x,yPredict,color="orange", label="y = {0:.2f}x {1:.2f} \n $S = S_0e^{{ \gamma \lambda }} = {2:.2f}e^{{ {3:.2f}\lambda }}$".format(slope,intercept,np.exp(intercept),slope),linewidth=3)
+ax[1][0].plot([0,x[1]],[intercept,x[1]*slope + intercept],"--",linewidth=3,color="orange")
+
+ax[1][0].legend(loc="upper left",fontsize="xx-large")
+ax[1][0].set_xlabel("Growth rate $\mathbf{\lambda = \\frac{ln(2)}{\\tau}}$ ($h^{-1}$)",fontsize=20,fontweight="bold")
+ax[1][0].set_ylabel("$\mathbf{ln}$(Mean cell volume)",fontsize=20,fontweight="bold")
+ax[1][0].set_xlim(0,1.05*max(x))
+ax[1][0].set_ylim(1.1*intercept,max(y)*1.5)
+ax[1][0].tick_params(axis="x", labelsize=15)
+ax[1][0].tick_params(axis="y", labelsize=15)
+#Bottom right residuals
+ax[1][1].axhline(0,color="gray",zorder=0)
+ax[1][1].errorbar(x,y-yPredict,yerr=yErrors,fmt='o',markersize=10,capsize=10,elinewidth=3,ecolor="k")
+ax[1][1].set_xlabel("Growth rate $\mathbf{\lambda}$ ($h^{-1}$)",fontsize=20,fontweight="bold")
+ax[1][1].set_ylabel("Residuals",fontsize=20,fontweight="bold")
+ax[1][1].tick_params(axis="x", labelsize=15)
+ax[1][1].tick_params(axis="y", labelsize=15)
+#Top left plot
+for vol in volumes:
+    ax[0][0].hist(vol,bins=18,alpha=0.33,density=True)
+ax[0][0].set_xlabel("Volume ($\\mu m^3$)",fontsize=20,fontweight="bold")
+ax[0][0].set_ylabel("Normalised frequency",fontsize=20,fontweight="bold")
+ax[0][0].tick_params(axis="x", labelsize=15)
+ax[0][0].tick_params(axis="y", labelsize=15)
+#Top right
+ax[0][1].boxplot(volumes,vert=False,whis=[1,99], positions= growthRates, meanline=True )
+#ax.annotate('n={}'.format(len(data[n])), xy=(n+1, np.median(data[n])),
+#        xytext=(n+1, np.median(data[n])), ha='center')
+ax[0][1].set_xlabel("Volume ($\\mu m^3$)",fontsize=20,fontweight="bold")
+ax[0][1].set_ylabel("Condition",fontsize=20,fontweight="bold")
+ax[0][1].tick_params(axis="x", labelsize=15)
+ax[0][1].tick_params(axis="y", labelsize=15)
+ax[0][1].grid(linestyle='--', linewidth=1,axis="x")
+
+
+fig.tight_layout()
 
 plt.show()

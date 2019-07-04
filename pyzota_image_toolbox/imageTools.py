@@ -175,7 +175,7 @@ def Erode(Image,numberoftimes):
     Performs binary erosion of image a required number of times.
     '''
     for i in range(numberoftimes):
-        Image = binary_erosion(Image)
+        Image = scipy.ndimage.morphology.binary_erosion(Image,border_value=0)
     return(Image)
 
 def Dilate(Image,numberoftimes):
@@ -459,6 +459,7 @@ def GetLengthAndWidth(Image,rawImage,debug=False):
 
 
         #**************** ALL steps PLOT  *****************************************#
+
         #Example showing all stages plot
         fig, ax = plt.subplots(nrows=3,ncols=3,figsize=(12,12))
         #Set titles
@@ -546,10 +547,10 @@ def GetLengthAndWidth(Image,rawImage,debug=False):
             ax[2][2].plot(np.asarray(xs)+padRow,np.asarray(ys)+padCol,color=color )
         ax[2][2].imshow(Image,cmap="gray",interpolation="None",alpha= 0.5)
         ax[2][2].imshow(edgePixels,cmap="inferno",interpolation="None",alpha= 0.5)
+        plt.show()
         fig.tight_layout()
         plt.clf()
         plt.close()
-        #plt.show()
         #exit()
 
 
