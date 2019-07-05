@@ -7,8 +7,6 @@ import os
 import platform
 import pickle
 import matplotlib
-if platform.system() == 'Linux':
-    matplotlib.use("GTKAgg")
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.colors import LogNorm

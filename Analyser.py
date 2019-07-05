@@ -7,6 +7,7 @@ import copy
 from scipy import stats
 import matplotlib
 from matplotlib import rc,rcParams
+from matplotlib.patches import Rectangle
 rc('axes', linewidth=2)
 rc('font', weight='bold')
 def getCondition(fName):
@@ -130,11 +131,7 @@ for prop in Props:
     plt.savefig("./Analysis/Graphs/All_"+prop)
     #plt.show()
 
-
-plt.close("all")
-plt.clf()
-
-
+from matplotlib.patches import Rectangle
 
 #******** THESIS FIGURES *************
 prop = "Volumes"
@@ -181,18 +178,34 @@ ax[1][1].set_ylabel("Residuals",fontsize=20,fontweight="bold")
 ax[1][1].tick_params(axis="x", labelsize=15)
 ax[1][1].tick_params(axis="y", labelsize=15)
 #Top left plot
-for vol in volumes:
-    ax[0][0].hist(vol,bins=18,alpha=0.33,density=True)
+labels = ["M63 + Glu + CAA, N = {}".format(len(volumes[0])),"M63 + Glycerol, N = {}".format(len(volumes[1])),"RDM, N = {}".format(len(volumes[2])) ]
+for i,vol in enumerate(volumes):
+    ax[0][0].hist(vol,bins=18,alpha=0.33,density=True,label=labels[i])
 ax[0][0].set_xlabel("Volume ($\\mu m^3$)",fontsize=20,fontweight="bold")
 ax[0][0].set_ylabel("Normalised frequency",fontsize=20,fontweight="bold")
 ax[0][0].tick_params(axis="x", labelsize=15)
 ax[0][0].tick_params(axis="y", labelsize=15)
+ax[0][0].legend(fontsize="x-large")
 #Top right
-ax[0][1].boxplot(volumes,vert=False,whis=[1,99], positions= growthRates, meanline=True )
-#ax.annotate('n={}'.format(len(data[n])), xy=(n+1, np.median(data[n])),
-#        xytext=(n+1, np.median(data[n])), ha='center')
+
+box = ax[0][1].boxplot(volumes,vert=False,whis=[1,99], positions= growthRates,widths=10 , patch_artist=True )
+colors = ['C0',"C1","C2"]
+for patch, color in zip(box['boxes'], colors):
+    patch.set_facecolor(color)
+    patch.set_alpha(0.33)
+
+ax[0][1].set_ylim(0,110)
 ax[0][1].set_xlabel("Volume ($\\mu m^3$)",fontsize=20,fontweight="bold")
-ax[0][1].set_ylabel("Condition",fontsize=20,fontweight="bold")
+ax[0][1].set_ylabel("Doubling time $\\tau$ (min)",fontsize=20,fontweight="bold")
+ax[0][1].set_yticks([20,40,60,80,100])
+ax[0][1].set_yticklabels([20,40,60,80,100])
+legendItems = []
+for color in colors:
+    legendItems.append(Rectangle((0, 0), 1, 1, fc=color,alpha=0.33, fill=True, edgecolor='none', linewidth=0))
+for i in range(len(volumes)):
+    ax[0][1].plot(np.mean(volumes[i]),growthRates[i],'D',alpha=0.5,color=colors[i],markersize=7)
+ax[0][1].legend(legendItems, labels,fontsize="large")
+
 ax[0][1].tick_params(axis="x", labelsize=15)
 ax[0][1].tick_params(axis="y", labelsize=15)
 ax[0][1].grid(linestyle='--', linewidth=1,axis="x")
