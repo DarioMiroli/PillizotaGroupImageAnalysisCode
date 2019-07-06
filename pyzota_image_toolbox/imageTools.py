@@ -555,7 +555,19 @@ def GetLengthAndWidth(Image,rawImage,debug=False):
     return length,meanWidth
 
     #plt.show()
-
+def getMeanIntensity(mask,rawImage):
+    mask = ClearBorders(mask)
+    mask = mask-np.amin(mask)
+    intensity = []
+    #plt.imshow(rawImage,cmap="inferno",alpha =0.5)
+    #plt.imshow(mask,cmap="gray",alpha=0.3)
+    #plt.show()
+    for row in range(mask.shape[0]):
+        for col in range(mask.shape[1]):
+            if (mask[row][col]) != 0:
+                intensity.append(rawImage[row][col])
+    return np.mean(intensity)
+    return meanIntensity
 
 def GetArea(Image):
     '''

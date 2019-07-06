@@ -151,19 +151,25 @@ for n in range(len(conditions)):
 
 
 #************ GROWTH LAW **************
+colors = ['C0',"C1","C2"]
 #Bottom left size vs growth rate
 plt.close("all")
 fig, ax = plt.subplots(nrows=2,ncols=2,figsize=(13,9))
+ax[0][0].text(0.82, 0.85 , "A", transform=ax[0][0].transAxes, size=30, weight='bold')
+ax[0][1].text(0.82, 0.85 , "B", transform=ax[0][1].transAxes, size=30, weight='bold')
+ax[1][0].text(0.05, 0.85 , "C", transform=ax[1][0].transAxes, size=30, weight='bold')
+ax[1][1].text(0.82, 0.85 , "D", transform=ax[1][1].transAxes, size=30, weight='bold')
 x = np.log(2)/(np.asarray(growthRates)/60.0)
 y = np.log(np.asarray(meanVolumes))
 slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
 yPredict = x*slope+intercept
 
-ax[1][0].errorbar(x,y,yerr=yErrors,fmt='o',markersize=10,capsize=10,elinewidth=3,ecolor="k")
-ax[1][0].plot(x,yPredict,color="orange", label="y = {0:.2f}x {1:.2f} \n $S = S_0e^{{ \gamma \lambda }} = {2:.2f}e^{{ {3:.2f}\lambda }}$".format(slope,intercept,np.exp(intercept),slope),linewidth=3)
-ax[1][0].plot([0,x[1]],[intercept,x[1]*slope + intercept],"--",linewidth=3,color="orange")
+ax[1][0].errorbar(x,y,yerr=yErrors,fmt="none",markersize=10,capsize=10,elinewidth=3,ecolor="k")
+ax[1][0].scatter(x,y,s=90,c=colors,zorder=99,alpha=1.0,marker="D")
+ax[1][0].plot(x,yPredict,color="C9", label="y = {0:.2f}x {1:.2f} \n $S = S_0e^{{ \gamma \lambda }} = {2:.2f}e^{{ {3:.2f}\lambda }}$".format(slope,intercept,np.exp(intercept),slope),linewidth=3)
+ax[1][0].plot([0,x[1]],[intercept,x[1]*slope + intercept],"--",linewidth=3,color="C9")
 
-ax[1][0].legend(loc="upper left",fontsize="xx-large")
+ax[1][0].legend(loc="lower right",fontsize="xx-large")
 ax[1][0].set_xlabel("Growth rate $\mathbf{\lambda = \\frac{ln(2)}{\\tau}}$ ($h^{-1}$)",fontsize=20,fontweight="bold")
 ax[1][0].set_ylabel("$\mathbf{ln}$(Mean cell volume)",fontsize=20,fontweight="bold")
 ax[1][0].set_xlim(0,1.05*max(x))
@@ -172,7 +178,8 @@ ax[1][0].tick_params(axis="x", labelsize=15)
 ax[1][0].tick_params(axis="y", labelsize=15)
 #Bottom right residuals
 ax[1][1].axhline(0,color="gray",zorder=0)
-ax[1][1].errorbar(x,y-yPredict,yerr=yErrors,fmt='o',markersize=10,capsize=10,elinewidth=3,ecolor="k")
+ax[1][1].errorbar(x,y-yPredict,yerr=yErrors,fmt='none',markersize=10,capsize=10,elinewidth=3,ecolor="k")
+ax[1][1].scatter(x,y-yPredict,s=90,c=colors,zorder=99,alpha=1.0,marker="D")
 ax[1][1].set_xlabel("Growth rate $\mathbf{\lambda}$ ($h^{-1}$)",fontsize=20,fontweight="bold")
 ax[1][1].set_ylabel("Residuals",fontsize=20,fontweight="bold")
 ax[1][1].tick_params(axis="x", labelsize=15)
@@ -185,11 +192,10 @@ ax[0][0].set_xlabel("Volume ($\\mu m^3$)",fontsize=20,fontweight="bold")
 ax[0][0].set_ylabel("Normalised frequency",fontsize=20,fontweight="bold")
 ax[0][0].tick_params(axis="x", labelsize=15)
 ax[0][0].tick_params(axis="y", labelsize=15)
-ax[0][0].legend(fontsize="x-large")
+#ax[0][0].legend(fontsize="x-large")
 #Top right
 
 box = ax[0][1].boxplot(volumes,vert=False,whis=[1,99], positions= growthRates,widths=10 , patch_artist=True )
-colors = ['C0',"C1","C2"]
 for patch, color in zip(box['boxes'], colors):
     patch.set_facecolor(color)
     patch.set_alpha(0.33)
@@ -204,13 +210,15 @@ for color in colors:
     legendItems.append(Rectangle((0, 0), 1, 1, fc=color,alpha=0.33, fill=True, edgecolor='none', linewidth=0))
 for i in range(len(volumes)):
     ax[0][1].plot(np.mean(volumes[i]),growthRates[i],'D',alpha=0.5,color=colors[i],markersize=7)
-ax[0][1].legend(legendItems, labels,fontsize="large")
-
+#ax[0][1].legend(legendItems, labels,fontsize="large")
+#fig.legend(legendItems, labels,fontsize="xx-large",ncol=3,loc="upper center")#loc = (0.05, 0.97))
+fig.legend([legendItems[1],legendItems[0],legendItems[2]], [labels[1],labels[0],labels[2]],loc='upper center', bbox_to_anchor=(0.5, 1.03), fancybox=False, shadow=False, ncol=3,fontsize="xx-large")
 ax[0][1].tick_params(axis="x", labelsize=15)
 ax[0][1].tick_params(axis="y", labelsize=15)
 ax[0][1].grid(linestyle='--', linewidth=1,axis="x")
-
-
 fig.tight_layout()
-
+fig.savefig('ThesisGraphs/GrowthLaw/GrowthLaw.pdf', bbox_inches='tight')
+fig.savefig('ThesisGraphs/GrowthLaw/GrowthLaw.png', bbox_inches='tight')
 plt.show()
+
+#********* HIGH OSMO **************
