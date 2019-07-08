@@ -393,21 +393,27 @@ fig.savefig('ThesisGraphs/GrowthLaw/OsmoIntensity.png', bbox_inches='tight')
 plt.close("all")
 fig, ax = plt.subplots(nrows=1,ncols=1,figsize=(9,6))
 sa = np.asarray(meanSurfaceAreas)/np.asarray(meanVolumes)
+sa_err = []
+for i in range(len(sa)):
+    sa_err.append(np.std(surfaceAreas[i]/volumes[i])/np.sqrt(len(surfaceAreas[i]/volumes[i])))
 ax.plot((growthRates), (sa) , '--',linewidth=3,color="C6",zorder=0,label="High osmolarity")
 for i in range(len(growthRates)):
     ax.scatter(growthRates[i], sa[i] , c=colors[i],s=200,label=labels[i])
+    ax.errorbar(growthRates[i], sa[i], yerr=sa_err[i], ecolor="k", capsize=10, fmt="none",zorder=0 )
 
 growthlawGrowthRates = [28, 40, 90]
 growthLawSAs = [2.575425188606645, 3.1357344118273915, 3.9769239021141103]
+growthLawSA_err = [0.027295227138177124 , 0.021106382327168875, 0.04251337872168573]
 ax.plot(growthlawGrowthRates, growthLawSAs ,'--', color="C9",linewidth=3,zorder=0,label="Nutrient limitation")
 colors = ["C1","C0","C2"]
 labels = ["M63 + Glycerol, N=147" ,"","RDM, N = 182"]
 for i in range(len(growthlawGrowthRates)):
     if i != 1:
         ax.scatter(growthlawGrowthRates[i], growthLawSAs[i] ,marker="D", c=colors[i],s=100,label=labels[i])
+        ax.errorbar(growthlawGrowthRates[i], growthLawSAs[i], yerr=growthLawSA_err[i], ecolor="k", capsize=10, fmt="none",zorder=0 )
 
 
-fig.legend(loc='upper center', bbox_to_anchor=(0.5, 1.11), fancybox=False, shadow=False, ncol=3,fontsize="large")
+fig.legend(loc='upper center', bbox_to_anchor=(0.5, 1.13), fancybox=False, shadow=False, ncol=3,fontsize="large")
 ax.set_xlabel("Doubling time $\\tau$ (min)",fontsize=20,fontweight="bold")
 ax.set_ylabel("Surface area to volume ratio",fontsize=20,fontweight="bold")
 ax.tick_params(axis="x", labelsize=15)
@@ -421,5 +427,25 @@ fig.savefig('ThesisGraphs/GrowthLaw/OsmoSurface.png', bbox_inches='tight')
 #*******************************************************************************
 #*******************************************************************************
 
+
+#******************** DAY TO DAY COMPARISON ************************************
+
+plt.close("all")
+fig, ax = plt.subplots(nrows=1,ncols=1,figsize=(9,6))
+
+volumes = []
+for n in range(len(dataDic2[prop])):
+    volume = np.asarray(dataDic2["Volumes"][n])*((scaleFactors)**3)
+    volumes.append(volume)
+    ax.plot(np.mean(volume),n+1,'o',zorder=99)
+    #ax.errorbar(np.mean(volume), n+1,xerr= np.std(volume)/np.sqrt(len(volume)),fmt="none",ecolor="black",capsize=10)
+
+box = ax.boxplot(volumes,vert=False,whis=[1,99],widths=0.9 , patch_artist=True )
+ax.set_yticklabels(dataDic2["Names"])
+
+plt.show()
+#*******************************************************************************
+#*******************************************************************************
+#*******************************************************************************
 print("***************DONE**************")
 #plt.show()

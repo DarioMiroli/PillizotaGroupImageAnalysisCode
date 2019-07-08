@@ -379,11 +379,16 @@ fig.savefig('ThesisGraphs/GrowthLaw/GrowthLawIntensity.png', bbox_inches='tight'
 plt.close("all")
 fig, ax = plt.subplots(nrows=1,ncols=1,figsize=(9,6))
 sa = np.asarray(meanSurfaceAreas)/np.asarray(meanVolumes)
+sa_err = []
+for i in range(len(sa)):
+    sa_err.append(np.std(surfaceAreas[i]/volumes[i])/np.sqrt(len(surfaceAreas[i]/volumes[i])))
 for i in range(len(growthRates)):
     ax.scatter(growthRates[i], sa[i] , c=colors[i],s=150,label=labels[i],marker="D")
+    ax.errorbar(growthRates[i], sa[i], yerr=sa_err[i], ecolor="k", capsize=10, fmt="none",zorder=0 )
 ax.plot(sorted(growthRates), sorted(sa) , '--',linewidth=3,color="C6",zorder=0)
 print(sorted(growthRates))
 print(sorted(sa))
+print(sa_err)
 ax.legend( fontsize="xx-large",loc="lower right")
 ax.set_xlabel("Doubling time $\\tau$ (min)",fontsize=20,fontweight="bold")
 ax.set_ylabel("Surface area to volume ratio",fontsize=20,fontweight="bold")
