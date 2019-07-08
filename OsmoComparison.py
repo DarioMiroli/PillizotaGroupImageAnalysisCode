@@ -393,13 +393,27 @@ fig.savefig('ThesisGraphs/GrowthLaw/OsmoIntensity.png', bbox_inches='tight')
 plt.close("all")
 fig, ax = plt.subplots(nrows=1,ncols=1,figsize=(9,6))
 sa = np.asarray(meanSurfaceAreas)/np.asarray(meanVolumes)
-ax.scatter(growthRates, sa , c=colors,s=200)
-ax.plot((growthRates), (sa) , '--',linewidth=3,color="C6")
-ax.legend(legendItems, labels, fontsize="xx-large",loc="lower right")
+ax.plot((growthRates), (sa) , '--',linewidth=3,color="C6",zorder=0,label="High osmolarity")
+for i in range(len(growthRates)):
+    ax.scatter(growthRates[i], sa[i] , c=colors[i],s=200,label=labels[i])
+
+growthlawGrowthRates = [28, 40, 90]
+growthLawSAs = [2.575425188606645, 3.1357344118273915, 3.9769239021141103]
+ax.plot(growthlawGrowthRates, growthLawSAs ,'--', color="C9",linewidth=3,zorder=0,label="Nutrient limitation")
+colors = ["C1","C0","C2"]
+labels = ["M63 + Glycerol, N=147" ,"","RDM, N = 182"]
+for i in range(len(growthlawGrowthRates)):
+    if i != 1:
+        ax.scatter(growthlawGrowthRates[i], growthLawSAs[i] ,marker="D", c=colors[i],s=100,label=labels[i])
+
+
+fig.legend(loc='upper center', bbox_to_anchor=(0.5, 1.11), fancybox=False, shadow=False, ncol=3,fontsize="large")
 ax.set_xlabel("Doubling time $\\tau$ (min)",fontsize=20,fontweight="bold")
 ax.set_ylabel("Surface area to volume ratio",fontsize=20,fontweight="bold")
 ax.tick_params(axis="x", labelsize=15)
 ax.tick_params(axis="y", labelsize=15)
+ax.set_ylim(2.5,4.2)
+ax.set_xlim(20,100)
 fig.tight_layout()
 fig.savefig('ThesisGraphs/GrowthLaw/OsmoSurface.pdf', bbox_inches='tight')
 fig.savefig('ThesisGraphs/GrowthLaw/OsmoSurface.png', bbox_inches='tight')
