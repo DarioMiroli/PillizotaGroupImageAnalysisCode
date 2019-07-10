@@ -406,10 +406,10 @@ growthLawSAs = [2.575425188606645, 3.1357344118273915, 3.9769239021141103]
 growthLawSA_err = [0.027295227138177124 , 0.021106382327168875, 0.04251337872168573]
 ax.plot(growthlawGrowthRates, growthLawSAs ,'--', color="C9",linewidth=3,zorder=0,label="Nutrient limitation")
 colors = ["C1","C0","C2"]
-labels = ["M63 + Glycerol, N=147" ,"","RDM, N = 182"]
+labels = ["RDM, N = 182", "", "M63 + Glycerol, N=147" ]
 for i in range(len(growthlawGrowthRates)):
     if i != 1:
-        ax.scatter(growthlawGrowthRates[i], growthLawSAs[i] ,marker="D", c=colors[i],s=100,label=labels[i])
+        ax.scatter(growthlawGrowthRates[i], growthLawSAs[i] ,marker="D", c=["C2","C0","C1"][i],s=100,label=labels[i])
         ax.errorbar(growthlawGrowthRates[i], growthLawSAs[i], yerr=growthLawSA_err[i], ecolor="k", capsize=10, fmt="none",zorder=0 )
 
 
@@ -426,6 +426,51 @@ fig.savefig('ThesisGraphs/GrowthLaw/OsmoSurface.png', bbox_inches='tight')
 #*******************************************************************************
 #*******************************************************************************
 #*******************************************************************************
+
+#***************** Volume against osmo *****************************************
+plt.close("all")
+osmos = [328,696,666.6666667,1052.333333,1416]
+labels = [cons[i] + ", N= {0}".format(len(volumes[i])) for i in range(len(cons))]
+print(labels)
+fig, ax = plt.subplots(nrows=1,ncols=1,figsize=(9,6))
+for i in range(len(meanVolumes)):
+    ax.scatter(osmos[i],meanVolumes[i],marker='o',s=150,label=labels[i])
+    ax.errorbar(osmos[i],meanVolumes[i],yerr=np.std(volumes[i])/np.sqrt(len(volumes[i])), ecolor="k",fmt="None",capsize=10,zorder=0)
+sortedVolumes = [x for _,x in sorted(zip(osmos,meanVolumes))]
+sortedOsmos = sorted(osmos)
+ax.plot(sortedOsmos,sortedVolumes,'--',zorder=0)
+
+#Inset figure
+# These are in unitless percentages of the figure size. (0,0 is bottom left)
+left, bottom, width, height = [0.5, 0.5, 0.4, 0.4]
+ax2 = fig.add_axes([left, bottom, width, height])
+for i in range(len(meanVolumes)):
+    ax2.scatter(osmos[i],meanVolumes[i]/meanVolumes[0],marker='o',s=150)
+    ax2.errorbar(osmos[i],meanVolumes[i]/meanVolumes[0],yerr=np.std(volumes[i])/np.sqrt(len(volumes[i])), ecolor="k",fmt="None",capsize=10,zorder=0)
+ax2.plot(sortedOsmos,sortedVolumes/sortedVolumes[0],'--',zorder=0)
+ax2.set_yticks([0.90,0.95,1.00,1.05,1.10])
+ax2.set_xticks([400,600,800,1000,1200,1400])
+ax2.set_ylabel("Normalised volume",fontsize=15,fontweight="bold")
+ax2.set_xlabel("Osmolarity (mOSm)",fontsize=15,fontweight="bold")
+ax2.tick_params(axis="x", labelsize=12)
+ax2.tick_params(axis="y", labelsize=12)
+
+
+
+fig.legend(loc='upper center', bbox_to_anchor=(0.5, 1.08), fancybox=False, shadow=False, ncol=3,fontsize="large")
+ax.set_ylim(0,4)
+ax.set_xlabel("Osmolarity (mOsm)",fontsize=20,fontweight="bold")
+ax.set_ylabel("Mean Volume ($\mu m ^3$)",fontsize=20,fontweight="bold")
+ax.tick_params(axis="x", labelsize=15)
+ax.tick_params(axis="y", labelsize=15)
+fig.tight_layout()
+fig.savefig('ThesisGraphs/GrowthLaw/OsmoVolume.pdf', bbox_inches='tight')
+fig.savefig('ThesisGraphs/GrowthLaw/OsmoVolume.png', bbox_inches='tight')
+exit()
+#*******************************************************************************
+#*******************************************************************************
+#*******************************************************************************
+
 
 
 #******************** DAY TO DAY COMPARISON ************************************
